@@ -15,7 +15,7 @@ void ResourceHolder<Resource, Identifier>::load(Identifier id, const std::string
 {
 	std::unique_ptr<Resource> resource(new Resource());
 	if (!resource->loadFromFile(filePath))
-	throw std::runtime_error("ResourceHolder::load failed - filePath " + filePath);
+	throw std::runtime_error("ResourceHolder::load failed - filepath: " + filePath);
 
 	auto inserted = GameTextures.insert(std::make_pair(id, std::move(resource)));
 	assert(inserted.second);

@@ -9,9 +9,9 @@ Mario::Mario(sf::Texture& texture, sf::Vector2u imageCount, float speed, float j
 
 	row = 0;
 
-	body.setSize(sf::Vector2f(32.0f, 32.0f));
+	body.setSize(sf::Vector2f(48.0f, 48.0f));
 	body.setOrigin(body.getSize() / 2.0f);
-	body.setPosition(sf::Vector2f(100.0f, 100.0f));
+	body.setPosition(sf::Vector2f(0.0f, -480.0f));
 	body.setTexture(&texture);
 
 }
