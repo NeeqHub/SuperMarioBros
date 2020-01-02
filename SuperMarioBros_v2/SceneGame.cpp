@@ -21,22 +21,28 @@ void SceneGame::onCreate()
 
 	int marioTextureID = textureAllocator.add(workingDir.Get() + "Viking.png");
 
-	const int frameWidth = 165; //1
-	const int frameHeight = 145;
+	const int frameWidth = 16; 
+	const int frameHeight = 16;
 
-	std::shared_ptr<Animation> idleAnimation = std::make_shared<Animation>();//2
+	std::shared_ptr<Animation> idleAnimation = std::make_shared<Animation>(FaceDirection::Right);
+	std::shared_ptr<Animation> walkAnimation = std::make_shared<Animation>(FaceDirection::Right);
 
 	// How long we want to show each frame.
 	const float idleAnimFrameSeconds = 0.2f;
+	const float walkAnimFrameSeconds = 0.08f;
 
-	idleAnimation->AddFrame(marioTextureID, 600, 0, frameWidth, frameHeight, idleAnimFrameSeconds);//3
-	idleAnimation->AddFrame(marioTextureID, 800, 0, frameWidth, frameHeight, idleAnimFrameSeconds);
-	idleAnimation->AddFrame(marioTextureID, 0, 145, frameWidth, frameHeight, idleAnimFrameSeconds);
-	idleAnimation->AddFrame(marioTextureID, 200, 145, frameWidth, frameHeight, idleAnimFrameSeconds);
+	idleAnimation->AddFrame(marioTextureID, 0, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
+	idleAnimation->AddFrame(marioTextureID, 16, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
+	idleAnimation->AddFrame(marioTextureID, 32, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
+
+	walkAnimation->AddFrame(marioTextureID, 0, 16, frameHeight, frameWidth, walkAnimFrameSeconds);
+	walkAnimation->AddFrame(marioTextureID, 16, 16, frameHeight, frameWidth, walkAnimFrameSeconds);
+	walkAnimation->AddFrame(marioTextureID, 32, 16, frameHeight, frameWidth, walkAnimFrameSeconds);
 
 	// This adds the idle animation that we’ve just built. 
 	// It will also set it as our active animation.
 	animation->AddAnimation(AnimationState::Idle, idleAnimation);
+	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 
 	/*******/
 

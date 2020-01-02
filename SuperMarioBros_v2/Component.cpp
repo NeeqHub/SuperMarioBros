@@ -77,7 +77,7 @@ void CSprite::SetTextureRect(const sf::IntRect& rect)
 	sprite.setTextureRect(rect);
 }
 
-Animation::Animation() : frames(0), currentFrameIndex(0), currentFrameTime(0.0f) {}
+Animation::Animation(FaceDirection direction) : frames(0), currentFrameIndex(0), currentFrameTime(0.0f), direction(direction) {}
 
 void Animation::AddFrame(int textureID, int x, int y, int height, int width, float frameTime)
 {
@@ -128,6 +128,24 @@ void Animation::Reset()
 {
 	currentFrameIndex = 0;
 	currentFrameTime = 0.0f;
+}
+
+void Animation::SetDirection(FaceDirection direction)
+{
+	if (direction != this->direction)
+	{
+		this->direction = direction;
+		for (auto& f : frames)
+		{
+			f.x += f.width;
+			f.width *= -1;
+		}
+	}
+}
+
+FaceDirection Animation::GetDirection() const
+{
+	return direction;
 }
 
 CAnimation::CAnimation(Object* owner) : Component(owner), currentAnimation(AnimationState::None, nullptr)
@@ -184,6 +202,14 @@ void CAnimation::SetAnimationState(AnimationState state)
 		currentAnimation.second = animation->second;
 
 		currentAnimation.second->Reset();
+	}
+}
+
+void CAnimation::SetAnimationDirection(FaceDirection direction)
+{
+	if (currentAnimation.first != AnimationState::None)
+	{
+		currentAnimation.second->SetDirection(direction);
 	}
 }
 
@@ -248,6 +274,11 @@ const sf::Vector2f & CTransform::getPosition() const
 CKeyboardMovement::CKeyboardMovement(Object* owner)
 	: Component(owner), moveSpeed(100) {}
 
+void CKeyboardMovement::Awake()
+{
+	animation = owner->getComponent<CAnimation>();
+}
+
 void CKeyboardMovement::setInput(Input* input)
 {
 	this->input = input;
@@ -268,10 +299,12 @@ void CKeyboardMovement::Update(float deltaTime)
 	int xMove = 0;
 	if (input->isKeyPressed(Input::Key::Left))
 	{
+		animation->SetAnimationDirection(FaceDirection::Left);
 		xMove = -moveSpeed;
 	}
 	else if (input->isKeyPressed(Input::Key::Right))
 	{
+		animation->SetAnimationDirection(FaceDirection::Right);
 		xMove = moveSpeed;
 	}
 
@@ -287,6 +320,12 @@ void CKeyboardMovement::Update(float deltaTime)
 
 	float xFrameMove = xMove * deltaTime;
 	float yFrameMove = yMove * deltaTime;
+
+
+	if (xMove == 0 && yMove == 0)
+		animation->SetAnimationState(AnimationState::Idle);
+	else
+		animation->SetAnimationState(AnimationState::Walk);
 
 	owner->transform->addPosition(xFrameMove, yFrameMove);
 }

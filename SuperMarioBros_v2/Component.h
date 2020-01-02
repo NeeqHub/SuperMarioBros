@@ -92,21 +92,32 @@ enum class AnimationState
 	Walk
 };
 
+enum class FaceDirection
+{
+	None,
+	Right,
+	Left
+};
+
 class Animation
 {
 public:
-	Animation();
+	Animation(FaceDirection direction);
 
 	void AddFrame(int id, int x, int y, int height, int width, float frameTime);
 	const FrameData* GetCurrentFrame() const;
 	bool UpdateFrame(float deltaTime);
 	void Reset();
 
+	void SetDirection(FaceDirection direction);
+	FaceDirection GetDirection() const;
+
 private:
 	void IncrementFrame();
 	std::vector<FrameData> frames;
 	int currentFrameIndex;
 	float currentFrameTime;
+	FaceDirection direction;
 
 };
 
@@ -139,6 +150,7 @@ public:
 	void Update(float deltaTime);
 	void AddAnimation(AnimationState state, std::shared_ptr<Animation> animation);
 	void SetAnimationState(AnimationState state);
+	void SetAnimationDirection(FaceDirection direction);
 	const AnimationState& GetAnimationState() const;
 
 private:
@@ -152,6 +164,7 @@ class CKeyboardMovement : public Component
 public:
 	CKeyboardMovement(Object* owner);
 
+	void Awake() override;
 	void setInput(Input* input);
 	void setMovementSpeed(int moveSpeed);
 
@@ -160,5 +173,6 @@ public:
 private:
 	int moveSpeed;
 	Input* input;
+	std::shared_ptr<CAnimation> animation;
 };
 
