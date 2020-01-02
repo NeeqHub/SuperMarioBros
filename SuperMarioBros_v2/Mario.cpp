@@ -11,9 +11,10 @@ Mario::Mario(sf::Texture& texture, sf::Vector2u imageCount, float speed, float j
 
 	body.setSize(sf::Vector2f(48.0f, 48.0f));
 	body.setOrigin(body.getSize() / 2.0f);
-	body.setPosition(sf::Vector2f(0.0f, -480.0f));
+	body.setPosition(sf::Vector2f(0.0f, 0.0f));
 	body.setTexture(&texture);
 
+	transform = addComponent<CTransform>();
 }
 
 Mario::~Mario()
@@ -48,7 +49,7 @@ void Mario::Collision(sf::Vector2f direction)
 
 void Mario::Update(float deltaTime)
 {
-	velocity.x = 0.0f;
+	/*velocity.x = 0.0f;
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
 		velocity.x -= speed;
@@ -56,11 +57,13 @@ void Mario::Update(float deltaTime)
 		velocity.x += speed;
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
 	{
-		if(canJump)
+		if (canJump)
 			velocity.y = -sqrtf(75.0f * 981.0f * jumpHeight);
 	}
 
-	velocity.y += 1800.0f * deltaTime;
+	velocity.y += 1800.0f * deltaTime;*/
+
+	transform->move(deltaTime);
 
 	// row 0 - idle 
 	// row 1 - walk
@@ -86,9 +89,9 @@ void Mario::Update(float deltaTime)
 	body.move(velocity * deltaTime);	
 
 }
-
+/*
 void Mario::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	target.draw(body);
-
-}
+	
+}*/

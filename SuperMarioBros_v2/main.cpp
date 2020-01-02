@@ -1,4 +1,4 @@
-#include <SFML/Graphics.hpp>
+/*#include <SFML/Graphics.hpp>
 #include <fstream>
 #include <vector>
 #include "ResourceHolder.h"
@@ -13,11 +13,6 @@ public:
 	NotImplemented() : std::logic_error("Function not yet implemented") { };
 };
 
-namespace tex
-{
-	enum ID { Mario, Blocks, Enemy, Powerups };
-}
-
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SuperMarioBros");
@@ -31,7 +26,19 @@ int main()
 	resourceHolderTexture.load(tex::Mario, "../Resources/mario.png");
 	resourceHolderTexture.load(tex::Blocks, "../Resources/blocks.png");
 
-	Mario mario(resourceHolderTexture.get(tex::Mario), sf::Vector2u(3, 4), 500.0f, 10.0f, 0.065f);
+	//Mario mario(resourceHolderTexture.get(tex::Mario), sf::Vector2u(3, 4), 500.0f, 10.0f, 0.065f);
+	//std::shared_ptr<Mario> mario;
+	//mario = make_shared<Mario>(resourceHolderTexture.get(tex::Mario), sf::Vector2u(3, 4), 500.0f, 10.0f, 0.065f);
+
+	std::shared_ptr<GameObject> mario;
+	mario = make_shared<GameObject>();
+
+	auto graphics = mario->addComponent<CGraphics>();
+	graphics->loadTexture(tex::Mario, "../Resources/mario.png");
+	graphics->setTexture(tex::Mario);
+
+	auto transform = mario->getComponent<CTransform>();
+	transform->setPosition(sf::Vector2f(0.0f, 0.0f));
 
 	std::vector<Blocks> blocks;
 
@@ -74,23 +81,23 @@ int main()
 				window.close();
 		}
 
-		view.setCenter(mario.getPosition());
-		window.setView(view);
+		//view.setCenter();
+		//window.setView(view);
 
-		mario.Update(deltaTime);
+		/*mario->Update(deltaTime);
 
 		Vector2f direction;
 
 		for (Blocks& block : blocks)
 		{
-			if (block.GetCollider().CheckCollision(mario.getCollider(), direction, 0.5f))
+			if (block.GetCollider().CheckCollision(mario->getCollider(), direction, 0.5f))
 			{
 				//if (block.tag == "questionBlock" && direction.y > 0.0f)
 
 				if (block.tag == "brick" && direction.y > 0.0f)
 					block.onCollision = true;
 
-				mario.Collision(direction);
+				mario->Collision(direction);
 			}		
 
 			if(block.onCollision)
@@ -100,11 +107,27 @@ int main()
 		for (Blocks& block : blocks)
 			block.Draw(window);
 	
-		mario.draw(window, states);
+		//mario->draw(window, states);
 
 		window.display();
 
 	}
 
 	return 0;
+}*/
+
+#include "Game.h"
+
+int main()
+{
+	Game game;
+
+	while (game.isRunning())
+	{
+		game.processInput();
+		game.update();
+		game.lateUpdate();
+		game.draw();	
+		game.calculateDeltaTime();
+	}
 }
