@@ -1,5 +1,6 @@
 #include "SceneGame.h"
 
+
 SceneGame::SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator) : workingDir(workingDir), textureAllocator(textureAllocator)
 {
 
@@ -7,6 +8,8 @@ SceneGame::SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>&
 
 void SceneGame::onCreate()
 {
+	tileinfo->ReadFile("cord.txt");
+
 	std::shared_ptr<Object> mario = std::make_shared<Object>();
 	auto sprite = mario->addComponent<CSprite>();
 	sprite->SetTextureAllocator(&textureAllocator);
@@ -19,7 +22,8 @@ void SceneGame::onCreate()
 
 	auto animation = mario->addComponent<CAnimation>();
 
-	int marioTextureID = textureAllocator.add(workingDir.Get() + "Viking.png");
+	int marioTextureID = textureAllocator.add(workingDir.Get() + "mario.png");
+	int blocksTextureID = textureAllocator.add(workingDir.Get() + "blocks.png");
 
 	const int frameWidth = 16; 
 	const int frameHeight = 16;
@@ -45,7 +49,7 @@ void SceneGame::onCreate()
 	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 
 	/*******/
-
+	
 	objects.add(mario);
 
 }
@@ -62,37 +66,9 @@ void SceneGame::processInput()
 
 void SceneGame::Update(float deltaTime)
 {
+	objects.processRemovals();
 	objects.processNewObjects();
 	objects.Update(deltaTime);
-	//mario->update(deltaTime);
-	/*const sf::Vector2f& spritePos = sprite.getPosition();
-	const int moveSpeed = 100;
-
-	int xMove = 0;
-	int yMove = 0;
-
-	if (input.isKeyPressed(Input::Key::Left))
-	{
-		xMove = -moveSpeed;
-	}
-	else if (input.isKeyPressed(Input::Key::Right))
-	{
-		xMove = moveSpeed;
-	}
-
-	if (input.isKeyPressed(Input::Key::Up))
-	{
-		yMove = -moveSpeed;
-	}
-	else if (input.isKeyPressed(Input::Key::Down))
-	{
-		yMove = moveSpeed;
-	}
-
-	float xFrameMove = xMove * deltaTime;
-	float yFrameMove = yMove * deltaTime;
-
-	sprite.setPosition(spritePos.x + xFrameMove, spritePos.y + yFrameMove);*/
 }
 
 void SceneGame::LateUpdate(float deltaTime)

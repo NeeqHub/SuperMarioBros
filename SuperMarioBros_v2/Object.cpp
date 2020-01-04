@@ -1,10 +1,5 @@
 #include "Object.h"
 
-Object::Object()
-{
-	transform = addComponent<CTransform>();
-}
-
 void Object::Awake()
 {
 	for (int i = components.size() - 1; i >= 0; i--)
@@ -39,9 +34,26 @@ void Object::LateUpdate(float deltaTime)
 
 void Object::Draw(Window& window)
 {
-	for (int i = components.size() - 1; i >= 0; i--)
-	{
-		components[i]->Draw(window);
-	}
+		drawable->Draw(window);
+}
+
+Object::Object() : queuedForRemoval(false) // Set queuedForRemoval to false
+{
+	transform = addComponent<CTransform>();
+}
+
+void Object::QueueForRemoval()
+{
+	queuedForRemoval = true;
+}
+
+bool Object::IsQueuedForRemoval()
+{
+	return  queuedForRemoval;
+}
+
+std::shared_ptr<CDrawable> Object::GetDrawable()
+{
+	return drawable;
 }
 

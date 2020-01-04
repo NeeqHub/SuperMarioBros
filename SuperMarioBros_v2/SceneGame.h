@@ -6,6 +6,7 @@
 #include "Component.h"
 #include "ObjectCollection.h"
 #include "ResourceManager.h"
+#include "Tile.h"
 
 class SceneGame : public Scene
 {
@@ -26,6 +27,7 @@ private:
 	Input input;
 	ObjectCollection objects;
 	ResourceManager<sf::Texture>& textureAllocator;
+	std::shared_ptr<TileInfo> tileinfo = std::make_shared<TileInfo>(workingDir);
 	
 };
 

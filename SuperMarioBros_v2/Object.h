@@ -30,6 +30,12 @@ public:
 		std::shared_ptr<T> newComponent = std::make_shared<T>(this);
 		components.push_back(newComponent);
 
+		// if component is drawable
+		if (std::dynamic_pointer_cast<CDrawable>(newComponent))
+		{
+			drawable = std::dynamic_pointer_cast<CDrawable>(newComponent);
+		}
+
 		return newComponent;
 	}
 
@@ -49,10 +55,16 @@ public:
 		return nullptr;
 	}
 
+	bool IsQueuedForRemoval();
+	void QueueForRemoval();
+
 	std::shared_ptr<CTransform> transform;
+	std::shared_ptr<CDrawable> GetDrawable();
 
 private:
 	std::vector<std::shared_ptr<Component>> components;
+	std::shared_ptr<CDrawable> drawable;
+	bool queuedForRemoval;
 	
 };
 

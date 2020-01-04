@@ -17,7 +17,6 @@ public:
 	virtual void Start() {};
 	virtual void Update(float deltaTime) {};
 	virtual void LateUpdate(float deltaTime) {};
-	virtual void Draw(Window& window) {};
 
 protected:
 	Object* owner;
@@ -57,23 +56,6 @@ namespace tex
 {
 	enum ID { Mario, Blocks, Enemy, Powerups };
 }
-
-/*class CGraphics : public Component
-{
-public:
-	CGraphics(Object* owner) : Component(owner) {}
-	~CGraphics() {}
-
-	void LateUpdate(float deltaTime) override;
-
-	void setTexture(const std::string& path);
-	void Draw(Window& window) override;
-
-private:
-	sf::Texture texture;
-	sf::RectangleShape shape;
-
-};*/
 
 struct FrameData
 {
@@ -121,14 +103,42 @@ private:
 
 };
 
-class CSprite : public Component
+class CDrawable
+{
+public:
+	CDrawable();
+	virtual ~CDrawable();
+
+	virtual void Draw(Window& window);
+	void SetSortOrder(int order);
+	int GetSortOrder() const;
+
+private:
+	int sortOrder;
+};
+
+class SDrawable
+{
+public:
+	void Add(std::vector<std::shared_ptr<Object>>& object);
+	void ProcessRemovals();
+	void Draw(Window& window);
+
+
+private:
+	void Add(std::shared_ptr<Object> object);
+	void Sort();
+	std::vector<std::shared_ptr<Object>> drawables;
+};
+
+class CSprite : public Component, public CDrawable
 {
 public:
 	CSprite(Object* owner);
 	void Load(const std::string& filePath);
 	void Load(int id);
 	void LateUpdate(float deltaTime) override;
-	void Draw(Window& window) override;
+	void Draw(Window& window);
 	void SetTextureAllocator(ResourceManager<sf::Texture>* allocator); // 1
 	void SetTextureRect(int x, int y, int width, int height);
 	void SetTextureRect(const sf::IntRect& rect);
@@ -175,4 +185,6 @@ private:
 	Input* input;
 	std::shared_ptr<CAnimation> animation;
 };
+
+
 
