@@ -13,11 +13,14 @@ void SceneGame::onCreate()
 
 	std::shared_ptr<Object> mario = std::make_shared<Object>();
 	auto sprite = mario->addComponent<CSprite>();
+	auto collider = mario->addComponent<CBoxCollider>();
 	sprite->SetTextureAllocator(&textureAllocator);
 	sprite->Load(workingDir.Get() + "mario.png");
+	sprite->SetScale(3, 3);
 
 	auto movement = mario->addComponent<CKeyboardMovement>();
 	movement->setInput(&input);
+	movement->setMovementSpeed(400.0f);
 
 	/*******/
 
@@ -33,8 +36,8 @@ void SceneGame::onCreate()
 	std::shared_ptr<Animation> walkAnimation = std::make_shared<Animation>(FaceDirection::Right);
 
 	// How long we want to show each frame.
-	const float idleAnimFrameSeconds = 0.2f;
-	const float walkAnimFrameSeconds = 0.08f;
+	const float idleAnimFrameSeconds = 0.1f;
+	const float walkAnimFrameSeconds = 0.05f;
 
 	idleAnimation->AddFrame(marioTextureID, 0, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
 	idleAnimation->AddFrame(marioTextureID, 16, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
@@ -50,7 +53,9 @@ void SceneGame::onCreate()
 	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 
 	/*******/
-	
+	collider->SetCollidable(sf::FloatRect(0, 0, frameWidth, frameHeight));
+	collider->SetLayer(CollisionLayer::Player);
+
 	objects.add(levelTiles);
 	objects.add(mario);
 

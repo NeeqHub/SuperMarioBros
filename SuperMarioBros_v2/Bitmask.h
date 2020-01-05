@@ -4,7 +4,8 @@
 class Bitmask
 {
 public:
-	Bitmask();
+	Bitmask(){}
+	Bitmask(uint32_t bits) : bits(bits){}
 	
 	void setMask(Bitmask& other);
 	uint32_t getMask() const;

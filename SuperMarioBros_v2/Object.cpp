@@ -40,6 +40,7 @@ void Object::Draw(Window& window)
 Object::Object() : queuedForRemoval(false) // Set queuedForRemoval to false
 {
 	transform = addComponent<CTransform>();
+	instanceID = addComponent<C_InstanceID>();
 }
 
 void Object::QueueForRemoval()

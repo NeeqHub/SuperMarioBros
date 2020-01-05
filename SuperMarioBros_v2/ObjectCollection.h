@@ -22,6 +22,7 @@ private:
 	std::vector<std::shared_ptr<Object>> objects;
 	std::vector<std::shared_ptr<Object>> newObjects;
 	SDrawable drawables;
+	S_Collidable collidables;
 
 };
 

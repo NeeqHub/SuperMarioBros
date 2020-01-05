@@ -42,7 +42,7 @@ public:
 	template <typename T>
 	std::shared_ptr<T> getComponent()
 	{
-		static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+		//static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
 
 		for (auto& exisitingComponent : components)
 		{
@@ -60,6 +60,7 @@ public:
 
 	std::shared_ptr<CTransform> transform;
 	std::shared_ptr<CDrawable> GetDrawable();
+	std::shared_ptr<C_InstanceID> instanceID;
 
 private:
 	std::vector<std::shared_ptr<Component>> components;

@@ -1,9 +1,5 @@
 #include "Bitmask.h"
 
-Bitmask::Bitmask() : bits(0)
-{
-}
-
 void Bitmask::setMask(Bitmask& other)
 {
 	bits = other.getMask();

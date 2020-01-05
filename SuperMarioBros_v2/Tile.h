@@ -43,6 +43,12 @@ struct Tile
 	sf::Vector2u tileSize; // The size of an individual tile.
 };*/
 
+struct Layer
+{
+	std::vector<std::shared_ptr<Tile>> tiles;
+	bool isVisible;
+};
+
 class STile
 {
 public:

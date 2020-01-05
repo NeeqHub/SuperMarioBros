@@ -18,8 +18,10 @@ public:
 	virtual void Update(float deltaTime) {};
 	virtual void LateUpdate(float deltaTime) {};
 
-protected:
 	Object* owner;
+
+protected:
+	
 };
 
 class CTransform : public Component
@@ -46,10 +48,13 @@ public:
 	void addY(float y);
 
 	const sf::Vector2f& getPosition() const;
+	void SetStatic(bool isStatic);
+	bool isStatic() const;
 
 private:
 	sf::Vector2f position;
 	sf::Vector2f velocity;
+	bool isStaticTransform;
 };
 
 namespace tex
@@ -142,6 +147,7 @@ public:
 	void SetTextureAllocator(ResourceManager<sf::Texture>* allocator); // 1
 	void SetTextureRect(int x, int y, int width, int height);
 	void SetTextureRect(const sf::IntRect& rect);
+	void SetScale(unsigned int x, unsigned int y);
 
 private:
 	ResourceManager<sf::Texture>* allocator;
@@ -185,6 +191,151 @@ private:
 	Input* input;
 	std::shared_ptr<CAnimation> animation;
 };
+
+enum class CollisionLayer
+{
+	Default = 1,
+	Player = 2,
+	Tile = 3
+};
+
+struct Manifold
+{
+	bool colliding = false;
+	const sf::FloatRect* other;
+};
+
+class CCollider : public Component
+{
+public:
+	CCollider(Object* owner);
+	~CCollider();
+
+	virtual Manifold Intersects(std::shared_ptr<CCollider> other) = 0;
+	virtual void ResolveOverlap(const Manifold& m) = 0;
+
+	CollisionLayer GetLayer() const;
+	void SetLayer(CollisionLayer layer);
+
+private:
+	CollisionLayer layer;
+};
+
+class CBoxCollider : public CCollider
+{
+public:
+	CBoxCollider(Object* owner);
+
+	Manifold Intersects(std::shared_ptr<CCollider> other) override;
+	void ResolveOverlap(const Manifold& m) override;
+
+	void SetCollidable(const sf::FloatRect& rect);
+	const sf::FloatRect& GetCollidable();
+
+private:
+	void SetPosition();
+
+	sf::FloatRect AABB;
+	sf::Vector2f offset;
+};
+
+class C_InstanceID : public Component
+{
+public:
+	C_InstanceID(Object* owner);
+	~C_InstanceID();
+
+	int Get() const;
+
+private:
+	static int count;
+	int id;
+};
+
+class Quadtree
+{
+public:
+	Quadtree();
+	Quadtree(int maxObjects, int maxLevels, int level,
+		sf::FloatRect bounds, Quadtree* parent);
+
+	// Inserts object into our quadtree.
+	void Insert(std::shared_ptr<CBoxCollider> object);
+
+	// Removes object from our quadtree when we no longer need it to collide.
+	void Remove(std::shared_ptr<CBoxCollider> object);
+
+	// Removes all objects from tree.
+	void Clear();
+
+	// Returns vector of colliders that intersect with the search area.
+	std::vector<std::shared_ptr<CBoxCollider>>
+		Search(const sf::FloatRect& area);
+
+	// Returns the bounds of this node.
+	const sf::FloatRect& GetBounds() const;
+
+private:
+	void Search(const sf::FloatRect& area,
+		std::vector<std::shared_ptr<CBoxCollider>>&
+		overlappingObjects);
+
+	// Returns the index for the node that will contain 		
+	// the object. -1 is returned if it is this node.
+	int GetChildIndexForObject(const sf::FloatRect& objectBounds);
+
+	// Creates the child nodes.
+	void Split();
+
+	// We’ll use these as indices in our array of children.
+	static const int thisTree = -1;
+	static const int childNE = 0;
+	static const int childNW = 1;
+	static const int childSW = 2;
+	static const int childSE = 3;
+
+	int maxObjects;
+	int maxLevels;
+
+	// nulptr is this is the base node.
+	Quadtree* parent;
+	std::shared_ptr<Quadtree> children[4];
+
+	// Stores objects in this node.
+	std::vector<std::shared_ptr<CBoxCollider>> objects;
+
+	// How deep the current node is from the base node. 
+	// The first node starts at 0 and then its child node 	
+	// is at level 1 and so on.
+	int level;
+
+	// The bounds of this node.
+	sf::FloatRect bounds;
+};
+
+class S_Collidable
+{
+public:
+	S_Collidable();
+
+	void Add(std::vector<std::shared_ptr<Object>>& objects);
+	void ProcessRemovals();
+	void Update();
+
+private:
+	void Resolve();
+	void ProcessCollisions(std::vector<std::shared_ptr<Object>>& first, std::vector<std::shared_ptr<Object>>& second);
+
+	// This is used to store collision layer data i.e. which layers can collide.
+	std::map<CollisionLayer, Bitmask> collisionLayers;
+
+	// The collision system stores all collidables along with their layer.
+	std::map<CollisionLayer, std::vector<std::shared_ptr<CBoxCollider>>> collidables;
+
+	// The quadtree stores the collidables in a spatial aware structure.
+	Quadtree collisionTree;
+};
+
 
 
 
