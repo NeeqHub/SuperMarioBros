@@ -14,8 +14,10 @@ public:
 
 	bool isOpen() const;
 
+	const sf::View& GetView() const;
+	void SetView(const sf::View& view);
+
 private:
 	sf::RenderWindow window;
-
 };
 

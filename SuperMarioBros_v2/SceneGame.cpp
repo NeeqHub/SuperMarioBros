@@ -1,14 +1,15 @@
 #include "SceneGame.h"
 
 
-SceneGame::SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator) : workingDir(workingDir), textureAllocator(textureAllocator)
+SceneGame::SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator) : workingDir(workingDir), textureAllocator(textureAllocator), tileSystem(workingDir, textureAllocator)
 {
 
 }
 
 void SceneGame::onCreate()
 {
-	tileinfo->ReadFile("cord.txt");
+	//tileinfo->ReadFile("cord.txt");
+	std::vector<std::shared_ptr<Object>> levelTiles = tileSystem.ReadFile("cord.txt");
 
 	std::shared_ptr<Object> mario = std::make_shared<Object>();
 	auto sprite = mario->addComponent<CSprite>();
@@ -50,6 +51,7 @@ void SceneGame::onCreate()
 
 	/*******/
 	
+	objects.add(levelTiles);
 	objects.add(mario);
 
 }

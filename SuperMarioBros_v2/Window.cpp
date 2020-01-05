@@ -36,3 +36,13 @@ bool Window::isOpen() const
 {
 	return window.isOpen();
 }
+
+const sf::View& Window::GetView() const
+{
+	return window.getView();
+}
+
+void Window::SetView(const sf::View& view)
+{
+	window.setView(view);
+}

@@ -30,6 +30,12 @@ void ObjectCollection::add(std::shared_ptr<Object> obj)
 	newObjects.push_back(obj);
 }
 
+void ObjectCollection::add(std::vector<std::shared_ptr<Object>> objs)
+{
+	newObjects = objs;
+	//newObjects.insert(newObjects.end(), objs.begin(), objs.end());
+}
+
 void ObjectCollection::processNewObjects()
 {
 	if (newObjects.size() > 0)
