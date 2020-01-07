@@ -3,7 +3,7 @@
 Game::Game() : window("SuperMarioBros")
 {
 	std::shared_ptr<SceneSplashScreen> splashScreen = std::make_shared<SceneSplashScreen>(workingDir, sceneStateMachine, window, textureAllocator);
-	std::shared_ptr<SceneGame> gameScene = std::make_shared<SceneGame>(workingDir, textureAllocator);
+	std::shared_ptr<SceneGame> gameScene = std::make_shared<SceneGame>(workingDir, textureAllocator, window);
 
 	unsigned int splashScreenID = sceneStateMachine.add(splashScreen);
 	unsigned int gameSceneID = sceneStateMachine.add(gameScene);

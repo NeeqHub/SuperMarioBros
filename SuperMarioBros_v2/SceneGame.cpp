@@ -1,7 +1,8 @@
 #include "SceneGame.h"
 
 
-SceneGame::SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator) : workingDir(workingDir), textureAllocator(textureAllocator), tileSystem(workingDir, textureAllocator)
+SceneGame::SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator, Window& window) : workingDir(workingDir), textureAllocator(textureAllocator), 
+tileSystem(workingDir, textureAllocator),window(window)
 {
 
 }
@@ -14,9 +15,13 @@ void SceneGame::onCreate()
 	std::shared_ptr<Object> mario = std::make_shared<Object>();
 	auto sprite = mario->addComponent<CSprite>();
 	auto collider = mario->addComponent<CBoxCollider>();
+	auto camera = mario->addComponent<C_Camera>();
+	camera->SetWindow(&window);
 	sprite->SetTextureAllocator(&textureAllocator);
 	sprite->Load(workingDir.Get() + "mario.png");
 	sprite->SetScale(3, 3);
+
+	mario->transform->setPosition(0.0f, 500.0f);
 
 	auto movement = mario->addComponent<CKeyboardMovement>();
 	movement->setInput(&input);

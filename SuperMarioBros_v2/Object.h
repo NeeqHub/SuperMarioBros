@@ -14,6 +14,10 @@ public:
 	void LateUpdate(float deltaTime);
 	void Draw(Window& window);
 
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other);
+	void OnCollisionStay(std::shared_ptr<CBoxCollider> other);
+	void OnCollisionExit(std::shared_ptr<CBoxCollider> other);
+
 	template <typename T>
 	std::shared_ptr<T> addComponent()
 	{
@@ -34,6 +38,11 @@ public:
 		if (std::dynamic_pointer_cast<CDrawable>(newComponent))
 		{
 			drawable = std::dynamic_pointer_cast<CDrawable>(newComponent);
+		}
+
+		if (std::dynamic_pointer_cast<C_Collidable>(newComponent))
+		{
+			collidables.push_back(std::dynamic_pointer_cast<C_Collidable>(newComponent));
 		}
 
 		return newComponent;
@@ -65,6 +74,7 @@ public:
 private:
 	std::vector<std::shared_ptr<Component>> components;
 	std::shared_ptr<CDrawable> drawable;
+	std::vector<std::shared_ptr<C_Collidable>> collidables;
 	bool queuedForRemoval;
 	
 };

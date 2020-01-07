@@ -4,8 +4,19 @@
 #include "Input.h"
 #include "ResourceManager.h"
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 class Object;
+
+struct EnumClassHash
+{
+	template <typename T>
+	std::size_t operator()(T t) const
+	{
+		return static_cast<std::size_t>(t);
+	}
+};
 
 class Component
 {
@@ -245,11 +256,11 @@ public:
 	C_InstanceID(Object* owner);
 	~C_InstanceID();
 
-	int Get() const;
+	unsigned int Get() const;
 
 private:
-	static int count;
-	int id;
+	static unsigned int count;
+	unsigned int id;
 };
 
 class Quadtree
@@ -313,6 +324,18 @@ private:
 	sf::FloatRect bounds;
 };
 
+struct ComponentPairHash
+{
+	template <typename T>
+	std::size_t operator()(T t) const
+	{
+		std::size_t x = t.first->owner->instanceID->Get();
+		std::size_t y = t.second->owner->instanceID->Get();
+
+		return (x >= y) ? (x * x + x + y) : (y * y + y + x);
+	}
+};
+
 class S_Collidable
 {
 public:
@@ -324,17 +347,51 @@ public:
 
 private:
 	void Resolve();
-	void ProcessCollisions(std::vector<std::shared_ptr<Object>>& first, std::vector<std::shared_ptr<Object>>& second);
+	void ProcessCollidingObjects();
+	std::unordered_map<CollisionLayer, Bitmask, EnumClassHash> collisionLayers;
+	std::unordered_map<CollisionLayer, std::vector<std::shared_ptr<CBoxCollider>>, EnumClassHash> collidables;
+	std::unordered_set<std::pair<std::shared_ptr<CBoxCollider>, std::shared_ptr<CBoxCollider>>, ComponentPairHash> objectsColliding;
 
 	// This is used to store collision layer data i.e. which layers can collide.
-	std::map<CollisionLayer, Bitmask> collisionLayers;
+	//std::map<CollisionLayer, Bitmask> collisionLayers;
 
 	// The collision system stores all collidables along with their layer.
-	std::map<CollisionLayer, std::vector<std::shared_ptr<CBoxCollider>>> collidables;
+	//std::map<CollisionLayer, std::vector<std::shared_ptr<CBoxCollider>>> collidables;
 
 	// The quadtree stores the collidables in a spatial aware structure.
 	Quadtree collisionTree;
 };
+
+class C_Camera : public Component
+{
+public:
+	C_Camera(Object* owner);
+
+	void LateUpdate(float deltaTime) override;
+
+	void SetWindow(Window* gameWindow);
+
+private:
+	Window* window;
+};
+
+class C_Collidable
+{
+public:
+	virtual void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) {};
+	virtual void OnCollisionStay(std::shared_ptr<CBoxCollider> other) {};
+	virtual void OnCollisionExit(std::shared_ptr<CBoxCollider> other) {};
+};
+
+class C_RemoveObjectOnCollisionEnter : public Component, public C_Collidable
+{
+public:
+	C_RemoveObjectOnCollisionEnter(Object* owner);
+
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) override;
+};
+
+
 
 
 

@@ -11,7 +11,7 @@
 class SceneGame : public Scene
 {
 public:
-	SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator);
+	SceneGame(WorkingDirectory& workingDir, ResourceManager<sf::Texture>& textureAllocator, Window& window);
 
 	void onCreate() override;
 	void onDestroy() override;
@@ -28,6 +28,7 @@ private:
 	ObjectCollection objects;
 	ResourceManager<sf::Texture>& textureAllocator;
 	STile tileSystem;
+	Window& window;
 	
 };
 

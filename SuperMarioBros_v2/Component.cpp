@@ -499,13 +499,13 @@ void CBoxCollider::ResolveOverlap(const Manifold& m)
 	}
 }
 
-int C_InstanceID::count = 0;
+unsigned int C_InstanceID::count = 0;
 
 C_InstanceID::C_InstanceID(Object* owner) : Component(owner), id(count++) {}
 
 C_InstanceID::~C_InstanceID() {}
 
-int C_InstanceID::Get() const
+unsigned int C_InstanceID::Get() const
 {
 	return id;
 }
@@ -746,6 +746,7 @@ void S_Collidable::Add(std::vector<std::shared_ptr<Object>>& objects)
 }
 void S_Collidable::ProcessRemovals()
 {
+	//We access the layer by reference now.
 	for (auto& layer : collidables)
 	{
 		auto itr = layer.second.begin();
@@ -764,6 +765,8 @@ void S_Collidable::ProcessRemovals()
 }
 void S_Collidable::Update()
 {
+	ProcessCollidingObjects();
+
 	collisionTree.Clear();
 	for (auto maps = collidables.begin();
 		maps != collidables.end(); ++maps)
@@ -776,7 +779,45 @@ void S_Collidable::Update()
 
 	Resolve();
 }
+void S_Collidable::ProcessCollidingObjects()
+{
+	auto itr = objectsColliding.begin();
+	while (itr != objectsColliding.end())
+	{
+		auto pair = *itr;
 
+		std::shared_ptr<CBoxCollider> first = pair.first;
+		std::shared_ptr<CBoxCollider> second = pair.second;
+
+		if (first->owner->IsQueuedForRemoval() || second->owner->IsQueuedForRemoval())
+		{
+			first->owner->OnCollisionExit(second);
+			second->owner->OnCollisionExit(first);
+
+			itr = objectsColliding.erase(itr);
+
+		}
+		else
+		{
+			Manifold m = first->Intersects(second);
+
+			if (!m.colliding)
+			{
+				first->owner->OnCollisionExit(second);
+				second->owner->OnCollisionExit(first);
+
+				itr = objectsColliding.erase(itr);
+			}
+			else
+			{
+				first->owner->OnCollisionStay(second);
+				second->owner->OnCollisionStay(first);
+
+				++itr;
+			}
+		}
+	}
+}
 void S_Collidable::Resolve()
 {
 	for (auto maps = collidables.begin(); maps != collidables.end(); ++maps) // 1
@@ -818,6 +859,15 @@ void S_Collidable::Resolve()
 
 					if (m.colliding)
 					{
+						auto collisionPair = objectsColliding.emplace(std::make_pair(collidable, collision));
+
+						if (collisionPair.second)
+						{
+							collidable->owner->OnCollisionEnter(collision);
+							collision->owner->OnCollisionEnter(collidable);
+						}
+
+
 						if (collision->owner->transform->isStatic())
 						{
 							collidable->ResolveOverlap(m); // 3c
@@ -839,3 +889,31 @@ void S_Collidable::Resolve()
 	}
 }
 
+C_Camera::C_Camera(Object* owner) : Component(owner) { }
+
+void C_Camera::LateUpdate(float deltaTime)
+{
+	if (window)
+	{
+		sf::View view = window->GetView();
+
+		const sf::Vector2f& targetPos = owner->transform->getPosition();
+		//TODO: remove hard-coding of y value
+		view.setCenter(targetPos.x, 500);
+
+		window->SetView(view);
+	}
+}
+
+void C_Camera::SetWindow(Window* gameWindow)
+{
+	window = gameWindow;
+}
+
+C_RemoveObjectOnCollisionEnter::C_RemoveObjectOnCollisionEnter(Object* owner) : Component(owner) {}
+
+void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
+{
+	// Remove the projectile when it collides with any other object    
+	owner->QueueForRemoval();
+}
