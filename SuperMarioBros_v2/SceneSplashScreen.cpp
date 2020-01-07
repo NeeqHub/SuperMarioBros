@@ -6,7 +6,7 @@ SceneSplashScreen::SceneSplashScreen(WorkingDirectory& workingDir, SceneStateMac
 void SceneSplashScreen::onCreate()
 {
 	int textureID = textureAllocator.add(workingDir.Get()
-		+ "mario.png"); //1
+		+ "title_screen.png"); //1
 
 		if (textureID >= 0)
 		{
@@ -14,11 +14,10 @@ void SceneSplashScreen::onCreate()
 			splashSprite.setTexture(*texture);
 
 			sf::FloatRect spriteSize = splashSprite.getLocalBounds();
-			splashSprite.setOrigin(spriteSize.width * 0.5f,
-				spriteSize.height * 0.5f);
-			splashSprite.setScale(0.5f, 0.5f);
+			splashSprite.setOrigin(spriteSize.width * 0.5f,spriteSize.height * 0.5f);
+			splashSprite.setScale(5.0f, 5.0f);
 
-			sf::Vector2u windowCentre = sf::Vector2u(0, 0);
+			sf::Vector2u windowCentre = sf::Vector2u(960, 540);
 			splashSprite.setPosition(windowCentre.x, windowCentre.y);
 		}
 }

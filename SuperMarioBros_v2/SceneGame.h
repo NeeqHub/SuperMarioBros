@@ -21,6 +21,9 @@ public:
 	void LateUpdate(float deltaTime) override;
 	void Draw(Window& window) override;
 
+	void CreatePlayer();
+	void CreateEnemy();
+
 private:
 	//std::shared_ptr<Object> mario;
 	WorkingDirectory& workingDir;

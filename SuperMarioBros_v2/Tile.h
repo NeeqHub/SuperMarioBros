@@ -54,7 +54,8 @@ class STile
 public:
 	STile(WorkingDirectory& workDir, ResourceManager<sf::Texture>& textureAllocator);
 	~STile();
-	std::vector<std::shared_ptr<Object>> ReadFile(const std::string& filePath);
+	std::vector<std::shared_ptr<Object>> LoadMapTiles(const std::string& filePath);
+	std::vector<std::shared_ptr<Object>> LoadBackgroundTiles(const std::string& filePath);
 	
 private:
 	WorkingDirectory& workDir;

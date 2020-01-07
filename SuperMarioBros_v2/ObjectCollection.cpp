@@ -33,8 +33,8 @@ void ObjectCollection::add(std::shared_ptr<Object> obj)
 
 void ObjectCollection::add(std::vector<std::shared_ptr<Object>> objs)
 {
-	newObjects = objs;
-	//newObjects.insert(newObjects.end(), objs.begin(), objs.end());
+	//newObjects = objs;
+	newObjects.insert(newObjects.end(), objs.begin(), objs.end());
 }
 
 void ObjectCollection::processNewObjects()
