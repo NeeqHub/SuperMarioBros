@@ -30,11 +30,13 @@ std::vector<std::shared_ptr<Object>> STile::ReadFile(const std::string& filePath
 		// 3 surprise
 		// 4 dsurprise
 		
+		int x=0, y=0;
+
 		switch (tile.tileID)
 		{
-		case 0: sprite->SetTextureRect(0, 0, 16, 16); break;
-		case 1: sprite->SetTextureRect(16, 0, 16, 16); break;
-		case 2: sprite->SetTextureRect(32, 0, 16, 16); break;
+		case 0: x = 0; y = 0; sprite->SetTextureRect(0, 0, 16, 16); break;
+		case 1: x = 16; y = 0; sprite->SetTextureRect(16, 0, 16, 16); break;
+		case 2: x = 32; y = 0; sprite->SetTextureRect(32, 0, 16, 16); break;
 
 		default:
 			break;

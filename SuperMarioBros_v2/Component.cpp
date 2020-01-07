@@ -407,7 +407,7 @@ void CCollider::SetLayer(CollisionLayer layer)
 }
 
 CBoxCollider::CBoxCollider(Object* owner) : CCollider(owner),
-offset(sf::Vector2f(0.f, 0.f)) {}
+offset(sf::Vector2f(0.0f, 0.0f)) {}
 
 void CBoxCollider::SetCollidable(const sf::FloatRect& rect)
 {

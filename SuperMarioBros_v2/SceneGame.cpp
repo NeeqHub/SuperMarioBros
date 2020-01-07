@@ -53,7 +53,7 @@ void SceneGame::onCreate()
 	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 
 	/*******/
-	collider->SetCollidable(sf::FloatRect(0, 0, frameWidth, frameHeight));
+	collider->SetCollidable(sf::FloatRect(0, 0, 48, 48));
 	collider->SetLayer(CollisionLayer::Player);
 
 	objects.add(levelTiles);
