@@ -295,7 +295,7 @@ public:
 	C_InstanceID(Object* owner);
 	~C_InstanceID();
 
-	unsigned int Get() const;
+	unsigned int Get();
 
 private:
 	static unsigned int count;
@@ -501,18 +501,8 @@ public:
 private:
 	std::shared_ptr<C_Velocity> velocity;
 	float enemyMovementSpeed;
+	float deathTime;
 };
-
-/*class KillEnemy : public Component, public C_Collidable
-{
-public:
-	KillEnemy(Object* owner);
-	void Awake();
-	void Update(float deltaTime) override;
-	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) override;
-private:
-	std::shared_ptr<CAnimation> animation;
-};*/
 
 class EnemyAnim : public Component, public C_Collidable
 {

@@ -289,46 +289,53 @@ void CKeyboardMovement::Update(float deltaTime)
 	sf::Vector2f acc(0.0f, 0.0f);
 	sf::Vector2f vel(0.0f, 0.0f); 
 
-	if (owner->transform->canJump == true) 
+	if (owner->disableInput == true)
 	{
-		timeInAir = 0.0f;
-		acc.y = 0.0f;
-		vel.y = 0.0f;
+		velocity->SetAcc(0.0f, 50.0f);
+		velocity->Set(0.0f,0.0f);
+		return;
 	}
-
-	if (owner->context->input->isKeyPressed(Input::Key::Left))
-	{
-		//xMove = -moveSpeed;
-		acc.x = -moveSpeed;
-	}
-	else if (owner->context->input->isKeyPressed(Input::Key::Right))
-	{
-		//xMove = moveSpeed;
-		acc.x = moveSpeed;
-	}
-
-	if (owner->context->input->isKeyDown(Input::Key::Up) && owner->transform->canJump == true)
-	{
-		if (timeInAir < jumpImpulseTime) {
-			vel.y = jumpImpulseVel;
+		
+		if (owner->transform->canJump == true)
+		{
+			timeInAir = 0.0f;
+			acc.y = 0.0f;
+			vel.y = 0.0f;
 		}
-		// Then slowly go higher.. 
-		else if (timeInAir < MAX_AIR_TIME) {
-			acc.y = jumpAccel;
+
+		if (owner->context->input->isKeyPressed(Input::Key::Left))
+		{
+			//xMove = -moveSpeed;
+			acc.x = -moveSpeed;
 		}
-		// Until finally falling
-		else {
+		else if (owner->context->input->isKeyPressed(Input::Key::Right))
+		{
+			//xMove = moveSpeed;
+			acc.x = moveSpeed;
+		}
+
+		if (owner->context->input->isKeyDown(Input::Key::Up) && owner->transform->canJump == true)
+		{
+			if (timeInAir < jumpImpulseTime) {
+				vel.y = jumpImpulseVel;
+			}
+			// Then slowly go higher.. 
+			else if (timeInAir < MAX_AIR_TIME) {
+				acc.y = jumpAccel;
+			}
+			// Until finally falling
+			else {
+				acc.y = GRAVITY;
+			}
+		}
+		else
+		{
+			// Prevent double jumps
+			timeInAir = MAX_AIR_TIME;
 			acc.y = GRAVITY;
 		}
-	}
-	else 
-	{
-		// Prevent double jumps
-		timeInAir = MAX_AIR_TIME;
-		acc.y = GRAVITY;
-	}
-	velocity->SetAcc(acc.x, acc.y);
-	velocity->Set(vel.x, vel.y);
+		velocity->SetAcc(acc.x, acc.y);
+		velocity->Set(vel.x, vel.y);
 }
 
 CDrawable::CDrawable() : sortOrder(0) {}
@@ -567,12 +574,12 @@ C_InstanceID::C_InstanceID(Object* owner) : Component(owner), id(count++) {}
 
 C_InstanceID::~C_InstanceID() {}
 
-unsigned int C_InstanceID::Get() const
+unsigned int C_InstanceID::Get()
 {
 	return id;
 }
 
-Quadtree::Quadtree() : Quadtree(5, 5, 0, { 0.f, 0.f, 1920, 1080 },
+Quadtree::Quadtree() : Quadtree(5, 5, 0, { 0.f, 0.f, 1920*5, 1080 },
 	nullptr) {}
 
 Quadtree::Quadtree(int maxObjects, int maxLevels, int level,
@@ -796,7 +803,7 @@ S_Collidable::S_Collidable()
 
 void S_Collidable::Add(std::vector<std::shared_ptr<Object>>& objects)
 {
-	for (auto o : objects)
+	/*for (auto o : objects)
 	{
 		auto collider = o->getComponent<CBoxCollider>();
 		if (collider)
@@ -816,6 +823,29 @@ void S_Collidable::Add(std::vector<std::shared_ptr<Object>>& objects)
 
 				collidables.insert(std::make_pair(layer, objs));
 			}
+		}
+	}*/
+	for (auto o : objects)
+	{
+		auto collider = o->getComponent<CBoxCollider>();
+		if (collider)
+		{
+			CollisionLayer layer = collider->GetLayer();
+
+			auto itr = collidables.find(layer);
+
+			if (itr != collidables.end())
+			{
+				collidables[layer].push_back(collider);
+			}
+			else
+			{
+				// Refractored line below.
+				collidables.insert(std::make_pair(layer, std::vector<std::shared_ptr<CBoxCollider>>{collider}));
+			}
+
+			// Remove line below.
+		   // collisionTree.Insert(collider);
 		}
 	}
 }
@@ -1004,7 +1034,7 @@ C_RemoveObjectOnCollisionEnter::C_RemoveObjectOnCollisionEnter(Object* owner) : 
 void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
 {
 	// Remove the projectile when it collides with any other object    
-	owner->QueueForRemoval();
+	//owner->QueueForRemoval();
 }
 
 C_Velocity::C_Velocity(Object* owner) :
@@ -1097,6 +1127,14 @@ void C_MovementAnimation::Update(float deltaTime)
 	{
 		const sf::Vector2f& currentVel = velocity->Get();
 
+		if (owner->hitted == true)
+		{
+			std::cout << "set to death";
+			animation->SetAnimationState(AnimationState::Death);
+			owner->getComponent<CBoxCollider>()->SetSize(0.0f, 0.0f);
+			owner->disableInput = true;
+			return;
+		}
 		//float velXAbs = fabs(currentVel.x);
 		//float velYAbs = fabs(currentVel.y);
 
@@ -1152,7 +1190,7 @@ void OutputColliders::OnCollisionExit(std::shared_ptr<CBoxCollider> other)
 	owner->transform->canJump = false;
 }
 
-EnemyMovement::EnemyMovement(Object * owner) : Component(owner), enemyMovementSpeed(100.0f)
+EnemyMovement::EnemyMovement(Object * owner) : Component(owner), enemyMovementSpeed(100.0f), deathTime(0.0f)
 {
 
 }
@@ -1165,47 +1203,27 @@ void EnemyMovement::Awake()
 
 void EnemyMovement::Update(float deltaTime)
 {
-	if (owner->transform->getPosition().x <= 31.0f * 48.0f)
-		enemyMovementSpeed = -enemyMovementSpeed;
-	
-	if (owner->transform->getPosition().x >= 38.0f * 48.0f)
-		enemyMovementSpeed = -enemyMovementSpeed;
-
-	velocity->SetAcc(enemyMovementSpeed, 0.0f);
-	velocity->Set(0.0f, 0.0f);
-}
-
-/*KillEnemy::KillEnemy(Object * owner) : Component(owner)
-{
-}
-
-void KillEnemy::Awake()
-{
-	//animation = owner->
-}
-
-void KillEnemy::Update(float deltaTime)
-{
-	if (owner->hitted == true)
-		animation->SetAnimationState(AnimationState::Death);
-	else
-		animation->SetAnimationState(AnimationState::Walk);
-
-	owner->OnCollisionEnter()
-}
-
-void KillEnemy::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
-{
-	if (other->GetTag() == Tag::Enemy)
+	if (owner->hitted == false)
 	{
-		std::cout << "Hit enemy" << std::endl;
-		owner->hitted = true;
-		animation = other->animation;
-		//other->animation->SetAnimationState(AnimationState::Death);
-		//animation->SetAnimationState(AnimationState::Death);
+		if (owner->transform->getPosition().x <= 31.0f * 48.0f)
+			enemyMovementSpeed = -enemyMovementSpeed;
 
+		if (owner->transform->getPosition().x >= 38.0f * 48.0f)
+			enemyMovementSpeed = -enemyMovementSpeed;
+
+		velocity->SetAcc(enemyMovementSpeed, 0.0f);
+		velocity->Set(0.0f, 0.0f);
 	}
-}*/
+	else
+	{
+		velocity->SetAcc(0.0f, 0.0f);
+		velocity->Set(0.0f, 0.0f);
+		deathTime += deltaTime;
+
+		if(deathTime > 0.25f)
+		owner->transform->setPosition(0.0f, 2000.0f);
+	}
+}
 
 EnemyAnim::EnemyAnim(Object * owner) : Component(owner)
 {
@@ -1223,5 +1241,13 @@ void EnemyAnim::Update(float deltaTime)
 void EnemyAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
 	if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Top)
+	{
 		animation->SetAnimationState(AnimationState::Death);
+		owner->getComponent<CBoxCollider>()->SetSize(48.0f, 24.0f);
+		owner->hitted = true;
+		other->owner->hitted = true;
+		//owner->transform->setPosition(0.0f, 2000.0f);
+		//owner->QueueForRemoval();
+	}
+		
 }

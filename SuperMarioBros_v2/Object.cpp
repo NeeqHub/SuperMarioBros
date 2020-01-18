@@ -1,46 +1,46 @@
 #include "Object.h"
 
+Object::Object(SharedContext* context) : context(context), queuedForRemoval(false), hitted(false), disableInput(false)
+{
+	transform = addComponent<CTransform>();
+	instanceID = addComponent<C_InstanceID>();
+}
+
 void Object::Awake()
 {
-	for (int i = components.size() - 1; i >= 0; i--)
+	for (const auto& component : components)
 	{
-		components[i]->Awake();
+		component->Awake();
 	}
 }
 
 void Object::Start()
 {
-	for (int i = components.size() - 1; i >= 0; i--)
+	for (const auto& component : components)
 	{
-		components[i]->Start();
+		component->Start();
 	}
 }
 
 void Object::Update(float deltaTime)
 {
-	for (int i = components.size() - 1; i >= 0; i--)
+	for (const auto& component : components)
 	{
-		components[i]->Update(deltaTime);
+		component->Update(deltaTime);
 	}
 }
 
 void Object::LateUpdate(float deltaTime)
 {
-	for (int i = components.size() - 1; i >= 0; i--)
+	for (const auto& component : components)
 	{
-		components[i]->LateUpdate(deltaTime);
+		component->LateUpdate(deltaTime);
 	}
 }
 
 void Object::Draw(Window& window)
 {
 		drawable->Draw(window);
-}
-
-Object::Object(SharedContext* context) : context(context), queuedForRemoval(false), hitted(false)
-{
-	transform = addComponent<CTransform>();
-	instanceID = addComponent<C_InstanceID>();
 }
 
 void Object::QueueForRemoval()

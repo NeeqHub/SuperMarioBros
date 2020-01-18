@@ -75,6 +75,8 @@ void SceneGame::CreatePlayer()
 
 	mario->transform->setPosition(100.0f, 500.0f);
 
+	std::cout << "mario id: " << mario->getComponent<C_InstanceID>()->Get() << std::endl;
+
 	mario->addComponent<CKeyboardMovement>();
 
 	auto animation = mario->addComponent<CAnimation>();
@@ -84,6 +86,7 @@ void SceneGame::CreatePlayer()
 	const int frameWidth = 16;
 	const int frameHeight = 16;
 
+	std::shared_ptr<Animation> deathAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> idleAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> walkAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> jumpAnimation = std::make_shared<Animation>(FaceDirection::Right);
@@ -92,6 +95,7 @@ void SceneGame::CreatePlayer()
 	const float idleAnimFrameSeconds = 0.1f;
 	const float walkAnimFrameSeconds = 0.05f;
 	const float jumpAnimFrameSeconds = 0.1f;
+
 
 	idleAnimation->AddFrame(marioTextureID, 0, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
 	idleAnimation->AddFrame(marioTextureID, 16, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
@@ -105,11 +109,17 @@ void SceneGame::CreatePlayer()
 	jumpAnimation->AddFrame(marioTextureID, 16, 32, frameHeight, frameWidth, jumpAnimFrameSeconds);
 	jumpAnimation->AddFrame(marioTextureID, 32, 32, frameHeight, frameWidth, jumpAnimFrameSeconds);
 
+	deathAnimation->AddFrame(marioTextureID, 0, 48, frameHeight, frameWidth, idleAnimFrameSeconds);
+	deathAnimation->AddFrame(marioTextureID, 16, 48, frameHeight, frameWidth, idleAnimFrameSeconds);
+	deathAnimation->AddFrame(marioTextureID, 32, 48, frameHeight, frameWidth, idleAnimFrameSeconds);
+
 	// This adds the idle animation that we’ve just built. 
 	// It will also set it as our active animation.
+	
 	animation->AddAnimation(AnimationState::Idle, idleAnimation);
 	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 	animation->AddAnimation(AnimationState::Jump, jumpAnimation);
+	animation->AddAnimation(AnimationState::Death, deathAnimation);
 
 	/*******/
 	collider->SetCollidable(sf::FloatRect(0, 0, 48, 48));
@@ -130,6 +140,8 @@ void SceneGame::CreateEnemy()
 	enemy1->addComponent<EnemyAnim>();
 	sprite->Load(workingDir.Get() + "grzybki2.png");
 	sprite->SetScale(3, 3);
+
+	std::cout << "enemy id: " << enemy1->getComponent<C_InstanceID>()->Get() << std::endl;
 
 	enemy1->transform->setPosition(31.0f * 48.0f, 500.0f);
 

@@ -73,6 +73,7 @@ public:
 	std::shared_ptr<C_InstanceID> instanceID;
 	SharedContext* context;
 	bool hitted;
+	bool disableInput;
 
 private:
 	std::vector<std::shared_ptr<Component>> components;
