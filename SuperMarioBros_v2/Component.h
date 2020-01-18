@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Input.h"
 #include "ResourceManager.h"
+#include "WorkingDirectory.h"
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -58,13 +59,14 @@ public:
 	void addX(float x);
 	void addY(float y);
 
+	sf::Vector2f velocity;
 	const sf::Vector2f& getPosition() const;
 	void SetStatic(bool isStatic);
 	bool isStatic() const;
 
 private:
 	sf::Vector2f position;
-	sf::Vector2f velocity;
+	
 	bool isStaticTransform;
 };
 
@@ -87,7 +89,10 @@ enum class AnimationState
 {
 	None,
 	Idle,
-	Walk
+	Walk,
+	Jump,
+	Death,
+	Projectile
 };
 
 enum class FaceDirection
@@ -155,14 +160,12 @@ public:
 	void Load(int id);
 	void LateUpdate(float deltaTime) override;
 	void Draw(Window& window);
-	void SetTextureAllocator(ResourceManager<sf::Texture>* allocator); // 1
 	void SetTextureRect(int x, int y, int width, int height);
 	void SetTextureRect(const sf::IntRect& rect);
 	void SetScale(unsigned int x, unsigned int y);
 
 private:
-	ResourceManager<sf::Texture>* allocator;
-	//sf::Texture texture;
+	//ResourceManager<sf::Texture>* allocator;
 	sf::Sprite sprite;
 	int currentTextureID;
 };
@@ -186,21 +189,31 @@ private:
 	std::pair<AnimationState, std::shared_ptr<Animation>> currentAnimation;
 };
 
+class C_Velocity;
+
 class CKeyboardMovement : public Component
 {
 public:
 	CKeyboardMovement(Object* owner);
 
 	void Awake() override;
-	void setInput(Input* input);
-	void setMovementSpeed(int moveSpeed);
+	void setMovementSpeed(float moveSpeed);
 
 	void Update(float deltaTIme) override;
 
 private:
-	int moveSpeed;
-	Input* input;
+	float moveSpeed;
 	std::shared_ptr<CAnimation> animation;
+	std::shared_ptr<C_Velocity> velocity;
+
+	const float GRAVITY = 98.0f;
+	const float MAX_VELOCITY = -10.0f;
+	const float MAX_AIR_TIME = 1.2f;
+
+	float timeInAir = 0.0f;
+	float jumpImpulseTime = 2.0f;
+	float jumpImpulseVel = -150.0f;
+	float jumpAccel = -1.0f;
 };
 
 enum class CollisionLayer
@@ -210,9 +223,18 @@ enum class CollisionLayer
 	Tile = 3
 };
 
+enum CollisionDirection
+{
+	Top,
+	Bottom,
+	Right,
+	Left
+};
+
 struct Manifold
 {
 	bool colliding = false;
+	CollisionDirection collisionDirection;
 	const sf::FloatRect* other;
 };
 
@@ -232,6 +254,13 @@ private:
 	CollisionLayer layer;
 };
 
+enum Tag
+{
+	Defult,
+	Player,
+	Enemy
+};
+
 class CBoxCollider : public CCollider
 {
 public:
@@ -243,9 +272,19 @@ public:
 	void SetCollidable(const sf::FloatRect& rect);
 	const sf::FloatRect& GetCollidable();
 
+	void SetOffset(const sf::Vector2f& offset);
+	void SetOffset(float x, float y);
+
+	void SetSize(const sf::Vector2f& size);
+	void SetSize(float width, float height);
+
+	void SetTag(Tag tag);
+	Tag GetTag();
+	std::shared_ptr<CAnimation> animation;
 private:
 	void SetPosition();
 
+	Tag tag;
 	sf::FloatRect AABB;
 	sf::Vector2f offset;
 };
@@ -286,6 +325,8 @@ public:
 	// Returns the bounds of this node.
 	const sf::FloatRect& GetBounds() const;
 
+	// To delete
+	void DrawDebug();
 private:
 	void Search(const sf::FloatRect& area,
 		std::vector<std::shared_ptr<CBoxCollider>>&
@@ -379,6 +420,7 @@ class C_Collidable
 {
 public:
 	virtual void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) {};
+	virtual void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m) {};
 	virtual void OnCollisionStay(std::shared_ptr<CBoxCollider> other) {};
 	virtual void OnCollisionExit(std::shared_ptr<CBoxCollider> other) {};
 };
@@ -391,8 +433,96 @@ public:
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) override;
 };
 
+class C_Velocity : public Component
+{
+public:
+	C_Velocity(Object* owner);
 
+	void Update(float deltaTime) override;
 
+	void Set(const sf::Vector2f& vel);
+	void Set(float x, float y);
+	void SetAcc(float x, float y);
 
+	const sf::Vector2f& Get() const;
+	const float& GetX() const;
+	const float& GetY() const;
+	
+	sf::Vector2f velocity;
+	sf::Vector2f acceleration;
+private:
+	
+	void ClampVelocity();
+
+	
+	sf::Vector2f maxVelocity;
+};
+
+class C_MovementAnimation : public Component
+{
+public:
+	C_MovementAnimation(Object* owner);
+
+	void Awake() override;
+
+	void Update(float deltaTime) override;
+
+private:
+	std::shared_ptr<C_Velocity> velocity;
+	std::shared_ptr<CAnimation> animation;
+};
+
+class ObjectCollection;
+
+struct SharedContext
+{
+	Input* input;
+	ObjectCollection* objects;
+	WorkingDirectory* workingDir;
+	ResourceManager<sf::Texture>* textureAllocator;
+	Window* window;
+};
+
+class OutputColliders : public Component, public C_Collidable
+{
+public:
+	OutputColliders(Object* owner);
+	void OnCollisionStay(std::shared_ptr<CBoxCollider> other)override;
+	void OnCollisionExit(std::shared_ptr<CBoxCollider> other)override;
+};
+
+class EnemyMovement : public Component
+{
+public:
+	EnemyMovement(Object* owner);
+	void Awake();
+	void Update(float deltaTime);
+
+private:
+	std::shared_ptr<C_Velocity> velocity;
+	float enemyMovementSpeed;
+};
+
+/*class KillEnemy : public Component, public C_Collidable
+{
+public:
+	KillEnemy(Object* owner);
+	void Awake();
+	void Update(float deltaTime) override;
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) override;
+private:
+	std::shared_ptr<CAnimation> animation;
+};*/
+
+class EnemyAnim : public Component, public C_Collidable
+{
+public:
+	EnemyAnim(Object* owner);
+	void Awake();
+	void Update(float deltaTime) override;
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m) override;
+private:
+	std::shared_ptr<CAnimation> animation;
+};
 
 

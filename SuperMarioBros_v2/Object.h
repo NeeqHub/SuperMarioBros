@@ -6,7 +6,7 @@
 class Object
 {
 public:
-	Object();
+	Object(SharedContext* context);
 	
 	void Awake();
 	void Start();
@@ -15,6 +15,7 @@ public:
 	void Draw(Window& window);
 
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other);
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m);
 	void OnCollisionStay(std::shared_ptr<CBoxCollider> other);
 	void OnCollisionExit(std::shared_ptr<CBoxCollider> other);
 
@@ -70,12 +71,15 @@ public:
 	std::shared_ptr<CTransform> transform;
 	std::shared_ptr<CDrawable> GetDrawable();
 	std::shared_ptr<C_InstanceID> instanceID;
+	SharedContext* context;
+	bool hitted;
 
 private:
 	std::vector<std::shared_ptr<Component>> components;
 	std::shared_ptr<CDrawable> drawable;
 	std::vector<std::shared_ptr<C_Collidable>> collidables;
 	bool queuedForRemoval;
+	
 	
 };
 

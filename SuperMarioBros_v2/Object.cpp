@@ -37,7 +37,7 @@ void Object::Draw(Window& window)
 		drawable->Draw(window);
 }
 
-Object::Object() : queuedForRemoval(false) // Set queuedForRemoval to false
+Object::Object(SharedContext* context) : context(context), queuedForRemoval(false), hitted(false)
 {
 	transform = addComponent<CTransform>();
 	instanceID = addComponent<C_InstanceID>();
@@ -63,6 +63,14 @@ void Object::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
 	for (const auto& component : collidables)
 	{
 		component->OnCollisionEnter(other);
+	}
+}
+
+void Object::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
+{
+	for (const auto& component : collidables)
+	{
+		component->OnCollisionEnter(other, m);
 	}
 }
 

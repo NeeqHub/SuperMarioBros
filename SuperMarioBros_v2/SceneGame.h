@@ -25,7 +25,7 @@ public:
 	void CreateEnemy();
 
 private:
-	//std::shared_ptr<Object> mario;
+	SharedContext context;
 	WorkingDirectory& workingDir;
 	Input input;
 	ObjectCollection objects;

@@ -1,13 +1,14 @@
 #include "Component.h"
 #include "Object.h"
+#include <iostream>
 
 CSprite::CSprite(Object* owner) : Component(owner), currentTextureID(-1) // Set current texture id to -1 
 {}
 
-void CSprite::SetTextureAllocator(ResourceManager<sf::Texture>* allocator)
+/*void CSprite::SetTextureAllocator(ResourceManager<sf::Texture>* allocator)
 {
 	this->allocator = allocator;
-}
+}*/
 
 void CSprite::Load(int id)
 {
@@ -15,24 +16,22 @@ void CSprite::Load(int id)
 	if (id >= 0 && id != currentTextureID)
 	{
 		currentTextureID = id;
-		std::shared_ptr<sf::Texture> texture = allocator->get(id);
+		std::shared_ptr<sf::Texture> texture = owner->context->textureAllocator->get(id);
 		sprite.setTexture(*texture);
 	}
 }
 
 void CSprite::Load(const std::string& filePath)
 {
-	if (allocator)
-	{
-		int textureID = allocator->add(filePath);
+	int textureID = owner->context->textureAllocator->add(filePath);
 
-		// Check its not already our current texture.
-		if (textureID >= 0 && textureID != currentTextureID)
-		{
-			currentTextureID = textureID;
-			std::shared_ptr<sf::Texture> texture = allocator->get(textureID);
-			sprite.setTexture(*texture);
-		}
+	if (textureID >= 0 && textureID != currentTextureID)
+	{
+		currentTextureID = textureID;
+
+		// Also retrieve texture allocator from shared context.
+		std::shared_ptr<sf::Texture> texture = owner->context->textureAllocator->get(textureID);
+		sprite.setTexture(*texture);
 	}
 }
 
@@ -43,8 +42,17 @@ void CSprite::Draw(Window& window)
 
 void CSprite::LateUpdate(float deltaTime)
 {
-	sprite.setPosition(owner->transform->getPosition());
+	//sprite.setPosition(owner->transform->getPosition());
+	sf::Vector2f pos = owner->transform->getPosition();
+	const sf::IntRect& spriteBounds = sprite.getTextureRect();
+	const sf::Vector2f& spriteScale = sprite.getScale();
+	sprite.setPosition(
+		pos.x - ((abs(spriteBounds.width) * 0.5f) * spriteScale.x),
+		pos.y - ((abs(spriteBounds.height) * 0.5f) * spriteScale.y)
+	);
 }
+
+
 
 void CSprite::SetTextureRect(int x, int y, int width, int height)
 {
@@ -180,6 +188,7 @@ void CAnimation::SetAnimationState(AnimationState state)
 	}
 
 	auto animation = animations.find(state);
+
 	if (animation != animations.end())
 	{
 		currentAnimation.first = animation->first;
@@ -260,62 +269,66 @@ const sf::Vector2f & CTransform::getPosition() const
 }
 
 CKeyboardMovement::CKeyboardMovement(Object* owner)
-	: Component(owner), moveSpeed(100) {}
+	: Component(owner), moveSpeed(300.0f) {}
 
 void CKeyboardMovement::Awake()
 {
-	animation = owner->getComponent<CAnimation>();
+	velocity = owner->getComponent<C_Velocity>();
 }
 
-void CKeyboardMovement::setInput(Input* input)
-{
-	this->input = input;
-}
-
-void CKeyboardMovement::setMovementSpeed(int moveSpeed)
+void CKeyboardMovement::setMovementSpeed(float moveSpeed)
 {
 	this->moveSpeed = moveSpeed;
 }
 
 void CKeyboardMovement::Update(float deltaTime)
 {
-	if (input == nullptr)
+	//float xMove = 0.0f;	
+	//float yMove = 0.0f;
+
+	sf::Vector2f acc(0.0f, 0.0f);
+	sf::Vector2f vel(0.0f, 0.0f); 
+
+	if (owner->transform->canJump == true) 
 	{
-		return;
+		timeInAir = 0.0f;
+		acc.y = 0.0f;
+		vel.y = 0.0f;
 	}
 
-	int xMove = 0;
-	if (input->isKeyPressed(Input::Key::Left))
+	if (owner->context->input->isKeyPressed(Input::Key::Left))
 	{
-		animation->SetAnimationDirection(FaceDirection::Left);
-		xMove = -moveSpeed;
+		//xMove = -moveSpeed;
+		acc.x = -moveSpeed;
 	}
-	else if (input->isKeyPressed(Input::Key::Right))
+	else if (owner->context->input->isKeyPressed(Input::Key::Right))
 	{
-		animation->SetAnimationDirection(FaceDirection::Right);
-		xMove = moveSpeed;
-	}
-
-	int yMove = 0;
-	if (input->isKeyPressed(Input::Key::Up))
-	{
-		yMove = -moveSpeed;
-	}
-	else if (input->isKeyPressed(Input::Key::Down))
-	{
-		yMove = moveSpeed;
+		//xMove = moveSpeed;
+		acc.x = moveSpeed;
 	}
 
-	float xFrameMove = xMove * deltaTime;
-	float yFrameMove = yMove * deltaTime;
-
-
-	if (xMove == 0 && yMove == 0)
-		animation->SetAnimationState(AnimationState::Idle);
-	else
-		animation->SetAnimationState(AnimationState::Walk);
-
-	owner->transform->addPosition(xFrameMove, yFrameMove);
+	if (owner->context->input->isKeyDown(Input::Key::Up) && owner->transform->canJump == true)
+	{
+		if (timeInAir < jumpImpulseTime) {
+			vel.y = jumpImpulseVel;
+		}
+		// Then slowly go higher.. 
+		else if (timeInAir < MAX_AIR_TIME) {
+			acc.y = jumpAccel;
+		}
+		// Until finally falling
+		else {
+			acc.y = GRAVITY;
+		}
+	}
+	else 
+	{
+		// Prevent double jumps
+		timeInAir = MAX_AIR_TIME;
+		acc.y = GRAVITY;
+	}
+	velocity->SetAcc(acc.x, acc.y);
+	velocity->Set(vel.x, vel.y);
 }
 
 CDrawable::CDrawable() : sortOrder(0) {}
@@ -407,7 +420,7 @@ void CCollider::SetLayer(CollisionLayer layer)
 }
 
 CBoxCollider::CBoxCollider(Object* owner) : CCollider(owner),
-offset(sf::Vector2f(0.0f, 0.0f)) {}
+offset(sf::Vector2f(0.0f, 0.0f)), animation(owner->getComponent<CAnimation>()) {}
 
 void CBoxCollider::SetCollidable(const sf::FloatRect& rect)
 {
@@ -434,8 +447,7 @@ Manifold CBoxCollider::Intersects(std::shared_ptr<CCollider> other)
 	Manifold m;
 	m.colliding = false; // We default to not colliding.
 
-	std::shared_ptr<CBoxCollider> boxCollider
-		= std::dynamic_pointer_cast<CBoxCollider>(other); // 1
+	std::shared_ptr<CBoxCollider> boxCollider = std::dynamic_pointer_cast<CBoxCollider>(other); // 1
 
 	if (boxCollider) // 2
 	{
@@ -444,6 +456,24 @@ Manifold CBoxCollider::Intersects(std::shared_ptr<CCollider> other)
 
 		if (rect1.intersects(rect2)) // 3
 		{
+			float xDiff = (rect1.left + (rect1.width * 0.5f)) - (rect2.left + (rect2.width * 0.5f)); // 3
+			float yDiff = (rect1.top + (rect1.height * 0.5f)) - (rect2.top + (rect2.height * 0.5f));
+		
+			if (fabs(xDiff) > fabs(yDiff)) // 4
+			{
+				if (xDiff > 0)
+					m.collisionDirection = CollisionDirection::Left;
+				else
+					m.collisionDirection = CollisionDirection::Right;
+			}
+			else
+			{
+				if (yDiff > 0)
+					m.collisionDirection = CollisionDirection::Bottom;
+				else
+					m.collisionDirection = CollisionDirection::Top;
+			}
+
 			m.colliding = true; // 4
 			m.other = &rect2;
 		}
@@ -462,10 +492,9 @@ void CBoxCollider::ResolveOverlap(const Manifold& m)
 	const sf::FloatRect* rect2 = m.other;
 
 	float resolve = 0; // 2
-	float xDiff = (rect1.left + (rect1.width * 0.5f))
-		- (rect2->left + (rect2->width * 0.5f)); // 3
-	float yDiff = (rect1.top + (rect1.height * 0.5f))
-		- (rect2->top + (rect2->height * 0.5f));
+
+	float xDiff = (rect1.left + (rect1.width * 0.5f)) - (rect2->left + (rect2->width * 0.5f)); // 3
+	float yDiff = (rect1.top + (rect1.height * 0.5f)) - (rect2->top + (rect2->height * 0.5f));
 
 	if (fabs(xDiff) > fabs(yDiff)) // 4
 	{
@@ -497,6 +526,39 @@ void CBoxCollider::ResolveOverlap(const Manifold& m)
 
 		transform->addPosition(0, resolve); // 5
 	}
+}
+
+void CBoxCollider::SetOffset(const sf::Vector2f& offset)
+{
+	this->offset = offset;
+}
+
+void CBoxCollider::SetOffset(float x, float y)
+{
+	offset.x = x;
+	offset.y = y;
+}
+
+void CBoxCollider::SetSize(const sf::Vector2f& size)
+{
+	AABB.width = size.x;
+	AABB.height = size.y;
+}
+
+void CBoxCollider::SetSize(float width, float height)
+{
+	AABB.width = width;
+	AABB.height = height;
+}
+
+void CBoxCollider::SetTag(Tag tag)
+{
+	this->tag = tag;
+}
+
+Tag CBoxCollider::GetTag()
+{
+	return tag;
 }
 
 unsigned int C_InstanceID::count = 0;
@@ -704,6 +766,19 @@ void Quadtree::Split()
 		this);
 }
 
+void Quadtree::DrawDebug()
+{
+	if (children[0] != nullptr)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			children[i]->DrawDebug();
+		}
+	}
+
+	Debug::DrawRect(bounds, sf::Color::Red);
+}
+
 S_Collidable::S_Collidable()
 {
 	Bitmask defaultCollisions; // 1
@@ -765,6 +840,7 @@ void S_Collidable::ProcessRemovals()
 }
 void S_Collidable::Update()
 {
+	collisionTree.DrawDebug(); // New line.
 	ProcessCollidingObjects();
 
 	collisionTree.Clear();
@@ -782,6 +858,7 @@ void S_Collidable::Update()
 void S_Collidable::ProcessCollidingObjects()
 {
 	auto itr = objectsColliding.begin();
+
 	while (itr != objectsColliding.end())
 	{
 		auto pair = *itr;
@@ -859,12 +936,24 @@ void S_Collidable::Resolve()
 
 					if (m.colliding)
 					{
+						Debug::DrawRect(collision->GetCollidable(), sf::Color::Red);
+						Debug::DrawRect(collidable->GetCollidable(), sf::Color::Red);
+
+						if (collision->owner->transform->isStatic())
+						{
+							collidable->ResolveOverlap(m);
+						}
+						else
+						{
+							collidable->ResolveOverlap(m);
+						}
+
 						auto collisionPair = objectsColliding.emplace(std::make_pair(collidable, collision));
 
 						if (collisionPair.second)
 						{
-							collidable->owner->OnCollisionEnter(collision);
-							collision->owner->OnCollisionEnter(collidable);
+							collidable->owner->OnCollisionEnter(collision, m);
+							collision->owner->OnCollisionEnter(collidable, m);
 						}
 
 
@@ -916,4 +1005,223 @@ void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollid
 {
 	// Remove the projectile when it collides with any other object    
 	owner->QueueForRemoval();
+}
+
+C_Velocity::C_Velocity(Object* owner) :
+	Component(owner), maxVelocity(500.f, 500.f) { }
+
+void C_Velocity::Update(float deltaTime)
+{	
+	velocity = velocity + (acceleration * deltaTime);
+
+	//std::cout << "velocity.x: " << velocity.x << " /velocity.y: " << velocity.y << std::endl;
+	//std::cout << "acc.x: " << acceleration.x << " /acc.y: " << acceleration.y << std::endl;
+
+	owner->transform->addPosition(velocity);
+}
+
+void C_Velocity::Set(const sf::Vector2f& vel)
+{
+	velocity = vel;
+
+	ClampVelocity();
+}
+
+void C_Velocity::SetAcc(float x, float y)
+{
+	acceleration.x = x;
+	acceleration.y = y;
+}
+
+void C_Velocity::Set(float x, float y)
+{
+	velocity.x = x;
+	velocity.y = y;
+
+	ClampVelocity();
+}
+
+const sf::Vector2f& C_Velocity::Get() const
+{
+	return velocity;
+}
+
+const float& C_Velocity::GetX() const
+{
+	return velocity.x;
+}
+
+const float& C_Velocity::GetY() const
+{
+	return velocity.y;
+}
+
+void C_Velocity::ClampVelocity()
+{
+	if (fabs(velocity.x) > maxVelocity.x)
+	{
+		if (velocity.x > 0.f)
+		{
+			velocity.x = maxVelocity.x;
+		}
+		else
+		{
+			velocity.x = -maxVelocity.x;
+		}
+	}
+
+	if (fabs(velocity.y) > maxVelocity.y)
+	{
+		if (velocity.y > 0.f)
+		{
+			velocity.y = maxVelocity.y;
+		}
+		else
+		{
+			velocity.y = -maxVelocity.y;
+		}
+	}
+}
+
+C_MovementAnimation::C_MovementAnimation(Object* owner) : Component(owner) { }
+
+void C_MovementAnimation::Awake()
+{
+	velocity = owner->getComponent<C_Velocity>();
+	animation = owner->getComponent<CAnimation>();
+}
+
+void C_MovementAnimation::Update(float deltaTime)
+{
+	if (animation->GetAnimationState() != AnimationState::Projectile)
+	{
+		const sf::Vector2f& currentVel = velocity->Get();
+
+		//float velXAbs = fabs(currentVel.x);
+		//float velYAbs = fabs(currentVel.y);
+
+		//std::cout << "X: " << currentVel.x << std::endl;
+		//std::cout << "Y: " << currentVel.y << std::endl;
+
+		if (currentVel.x != 0.0f)//&& currentVel.y >= 0.f)
+		{
+			animation->SetAnimationState(AnimationState::Walk);
+
+			//float velXAbs = fabs(currentVel.x);
+			//float velYAbs = fabs(currentVel.y);
+
+			//if (velXAbs > velYAbs)
+			//{
+				if (currentVel.x < 0)
+				{
+					animation->SetAnimationDirection(FaceDirection::Left);
+				}
+				else
+				{
+					animation->SetAnimationDirection(FaceDirection::Right);
+				}
+			//}
+		}
+		else if (currentVel.y < 0.f)
+		{
+			animation->SetAnimationState(AnimationState::Jump);
+
+			//if (currentVel.x < 0)
+				//animation->SetAnimationDirection(FaceDirection::Left);
+			//else
+				//animation->SetAnimationDirection(FaceDirection::Right);
+		}
+		else
+		{
+			animation->SetAnimationState(AnimationState::Idle);
+		}
+	}
+}
+
+OutputColliders::OutputColliders(Object * owner) : Component(owner)
+{
+}
+
+void OutputColliders::OnCollisionStay(std::shared_ptr<CBoxCollider> other)
+{
+	owner->transform->canJump = true;
+}
+
+void OutputColliders::OnCollisionExit(std::shared_ptr<CBoxCollider> other)
+{
+	owner->transform->canJump = false;
+}
+
+EnemyMovement::EnemyMovement(Object * owner) : Component(owner), enemyMovementSpeed(100.0f)
+{
+
+}
+
+void EnemyMovement::Awake()
+{
+	velocity = owner->getComponent<C_Velocity>();
+	
+}
+
+void EnemyMovement::Update(float deltaTime)
+{
+	if (owner->transform->getPosition().x <= 31.0f * 48.0f)
+		enemyMovementSpeed = -enemyMovementSpeed;
+	
+	if (owner->transform->getPosition().x >= 38.0f * 48.0f)
+		enemyMovementSpeed = -enemyMovementSpeed;
+
+	velocity->SetAcc(enemyMovementSpeed, 0.0f);
+	velocity->Set(0.0f, 0.0f);
+}
+
+/*KillEnemy::KillEnemy(Object * owner) : Component(owner)
+{
+}
+
+void KillEnemy::Awake()
+{
+	//animation = owner->
+}
+
+void KillEnemy::Update(float deltaTime)
+{
+	if (owner->hitted == true)
+		animation->SetAnimationState(AnimationState::Death);
+	else
+		animation->SetAnimationState(AnimationState::Walk);
+
+	owner->OnCollisionEnter()
+}
+
+void KillEnemy::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
+{
+	if (other->GetTag() == Tag::Enemy)
+	{
+		std::cout << "Hit enemy" << std::endl;
+		owner->hitted = true;
+		animation = other->animation;
+		//other->animation->SetAnimationState(AnimationState::Death);
+		//animation->SetAnimationState(AnimationState::Death);
+
+	}
+}*/
+
+EnemyAnim::EnemyAnim(Object * owner) : Component(owner)
+{
+}
+
+void EnemyAnim::Awake()
+{
+	animation = owner->getComponent<CAnimation>();
+}
+
+void EnemyAnim::Update(float deltaTime)
+{
+}
+
+void EnemyAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
+{
+	if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Top)
+		animation->SetAnimationState(AnimationState::Death);
 }
