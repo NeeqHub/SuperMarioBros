@@ -20,6 +20,8 @@ public:
 	void Update(float deltaTime) override;
 	void LateUpdate(float deltaTime) override;
 	void Draw(Window& window) override;
+	void setSwitchToScene(unsigned int id);
+	unsigned int switchToState;
 
 	void CreatePlayer();
 	void CreateEnemy();

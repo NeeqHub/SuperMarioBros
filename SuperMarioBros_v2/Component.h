@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include "SceneStateMachine.h"
 
 class Object;
 
@@ -205,6 +206,7 @@ private:
 	float moveSpeed;
 	std::shared_ptr<CAnimation> animation;
 	std::shared_ptr<C_Velocity> velocity;
+	SceneStateMachine sceneStateMachine;
 
 	const float GRAVITY = 98.0f;
 	const float MAX_VELOCITY = -10.0f;
@@ -214,6 +216,8 @@ private:
 	float jumpImpulseTime = 2.0f;
 	float jumpImpulseVel = -150.0f;
 	float jumpAccel = -1.0f;
+
+	float currentTime;
 };
 
 enum class CollisionLayer
@@ -453,8 +457,6 @@ public:
 private:
 	
 	void ClampVelocity();
-
-	
 	sf::Vector2f maxVelocity;
 };
 
@@ -504,6 +506,19 @@ private:
 	float deathTime;
 };
 
+class EnemyTurtleMovement : public Component
+{
+public:
+	EnemyTurtleMovement(Object* owner);
+	void Awake();
+	void Update(float deltaTime);
+
+private:
+	std::shared_ptr<C_Velocity> velocity;
+	float enemyMovementSpeed;
+	float deathTime;
+};
+
 class EnemyAnim : public Component, public C_Collidable
 {
 public:
@@ -513,6 +528,18 @@ public:
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m) override;
 private:
 	std::shared_ptr<CAnimation> animation;
+};
+
+class EnemyTurtleAnim : public Component, public C_Collidable
+{
+public:
+	EnemyTurtleAnim(Object* owner);
+	void Awake();
+	void Update(float deltaTime) override;
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m) override;
+private:
+	std::shared_ptr<CAnimation> animation;
+	std::shared_ptr<C_Velocity> velocity;
 };
 
 

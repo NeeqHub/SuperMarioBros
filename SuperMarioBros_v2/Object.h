@@ -73,6 +73,8 @@ public:
 	std::shared_ptr<C_InstanceID> instanceID;
 	SharedContext* context;
 	bool hitted;
+	bool isPushedLeft;
+	bool isPushedRight;
 	bool disableInput;
 
 private:

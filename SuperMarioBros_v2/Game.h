@@ -6,6 +6,7 @@
 #include "SceneStateMachine.h"
 #include "SceneSplashScreen.h"
 #include "SceneGame.h"
+#include "SceneGameOver.h"
 
 class Game
 {

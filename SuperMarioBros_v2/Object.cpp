@@ -1,6 +1,6 @@
 #include "Object.h"
 
-Object::Object(SharedContext* context) : context(context), queuedForRemoval(false), hitted(false), disableInput(false)
+Object::Object(SharedContext* context) : context(context), queuedForRemoval(false), hitted(false), disableInput(false), isPushedLeft(false), isPushedRight(false)
 {
 	transform = addComponent<CTransform>();
 	instanceID = addComponent<C_InstanceID>();

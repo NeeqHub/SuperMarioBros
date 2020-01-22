@@ -269,7 +269,7 @@ const sf::Vector2f & CTransform::getPosition() const
 }
 
 CKeyboardMovement::CKeyboardMovement(Object* owner)
-	: Component(owner), moveSpeed(300.0f) {}
+	: Component(owner), moveSpeed(3000.0f), currentTime(0.0f) {}
 
 void CKeyboardMovement::Awake()
 {
@@ -289,13 +289,25 @@ void CKeyboardMovement::Update(float deltaTime)
 	sf::Vector2f acc(0.0f, 0.0f);
 	sf::Vector2f vel(0.0f, 0.0f); 
 
+	if (currentTime >= 5.0f)
+	{
+		//currentTime = 0.0f;
+	}
+
 	if (owner->disableInput == true)
 	{
+		currentTime += deltaTime;
+		std::cout << currentTime << std::endl;
+
+		if(currentTime <= 0.5f)
+		velocity->SetAcc(0.0f, -250.0f);
+		else
 		velocity->SetAcc(0.0f, 50.0f);
-		velocity->Set(0.0f,0.0f);
+
+		velocity->Set(0.0f, 0.0f);
 		return;
 	}
-		
+
 		if (owner->transform->canJump == true)
 		{
 			timeInAir = 0.0f;
@@ -1203,25 +1215,93 @@ void EnemyMovement::Awake()
 
 void EnemyMovement::Update(float deltaTime)
 {
+	if (owner->instanceID->Get() == 479)
+	{
+		if (owner->hitted == false)
+		{
+			if (owner->transform->getPosition().x <= 31.0f * 48.0f)
+				enemyMovementSpeed = -enemyMovementSpeed;
+
+			if (owner->transform->getPosition().x >= 38.0f * 48.0f)
+				enemyMovementSpeed = -enemyMovementSpeed;
+
+			velocity->SetAcc(enemyMovementSpeed, 0.0f);
+			velocity->Set(0.0f, 0.0f);
+		}
+		else
+		{
+			velocity->SetAcc(0.0f, 0.0f);
+			velocity->Set(0.0f, 0.0f);
+			deathTime += deltaTime;
+
+			if (deathTime > 0.25f)
+				owner->transform->setPosition(0.0f, 2000.0f);
+		}
+	}
+	else if (owner->instanceID->Get() == 480)
+	{
+		if (owner->hitted == false)
+		{
+			if (owner->transform->getPosition().x <= 41.0f * 48.0f)
+				enemyMovementSpeed = -enemyMovementSpeed;
+
+			if (owner->transform->getPosition().x >= 48.0f * 48.0f)
+				enemyMovementSpeed = -enemyMovementSpeed;
+
+			velocity->SetAcc(enemyMovementSpeed, 0.0f);
+			velocity->Set(0.0f, 0.0f);
+		}
+		else
+		{
+			velocity->SetAcc(0.0f, 0.0f);
+			velocity->Set(0.0f, 0.0f);
+			deathTime += deltaTime;
+
+			if (deathTime > 0.25f)
+				owner->transform->setPosition(0.0f, 2000.0f);
+		}
+	}
+}
+
+EnemyTurtleMovement::EnemyTurtleMovement(Object * owner) : Component(owner), enemyMovementSpeed(100.0f), deathTime(0.0f)
+{
+}
+
+void EnemyTurtleMovement::Awake()
+{
+	velocity = owner->getComponent<C_Velocity>();
+}
+
+void EnemyTurtleMovement::Update(float deltaTime)
+{
+	if (owner->isPushedLeft == true)
+	{
+		velocity->SetAcc(-enemyMovementSpeed - 100.0f, 0.0f);
+		velocity->Set(0.0f, 0.0f);
+		return;
+	}
+
+	if (owner->isPushedRight == true)
+	{
+		velocity->SetAcc(-enemyMovementSpeed + 100.0f, 0.0f);
+		velocity->Set(0.0f, 0.0f);
+		return;
+	}
+
 	if (owner->hitted == false)
 	{
-		if (owner->transform->getPosition().x <= 31.0f * 48.0f)
-			enemyMovementSpeed = -enemyMovementSpeed;
+		if (owner->transform->getPosition().x <= 92.0f * 48.0f)
+			velocity->SetAcc(enemyMovementSpeed, 0.0f);
 
-		if (owner->transform->getPosition().x >= 38.0f * 48.0f)
-			enemyMovementSpeed = -enemyMovementSpeed;
+		if (owner->transform->getPosition().x >= 110.0f * 48.0f)
+			velocity->SetAcc(-enemyMovementSpeed, 0.0f);
 
-		velocity->SetAcc(enemyMovementSpeed, 0.0f);
 		velocity->Set(0.0f, 0.0f);
 	}
 	else
 	{
 		velocity->SetAcc(0.0f, 0.0f);
 		velocity->Set(0.0f, 0.0f);
-		deathTime += deltaTime;
-
-		if(deathTime > 0.25f)
-		owner->transform->setPosition(0.0f, 2000.0f);
 	}
 }
 
@@ -1245,9 +1325,52 @@ void EnemyAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m
 		animation->SetAnimationState(AnimationState::Death);
 		owner->getComponent<CBoxCollider>()->SetSize(48.0f, 24.0f);
 		owner->hitted = true;
-		other->owner->hitted = true;
-		//owner->transform->setPosition(0.0f, 2000.0f);
-		//owner->QueueForRemoval();
 	}
-		
+	else if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)
+	{
+		other->owner->hitted = true;
+	}
+}
+
+EnemyTurtleAnim::EnemyTurtleAnim(Object * owner) : Component(owner)
+{
+}
+
+void EnemyTurtleAnim::Awake()
+{
+	velocity = owner->getComponent<C_Velocity>();
+	animation = owner->getComponent<CAnimation>();
+}
+
+void EnemyTurtleAnim::Update(float deltaTime)
+{
+	const sf::Vector2f currentAcc= velocity->acceleration;
+
+	if (currentAcc.x > 0.0f)
+		animation->SetAnimationDirection(FaceDirection::Left);
+	else if (currentAcc.x < 0.0f)
+		animation->SetAnimationDirection(FaceDirection::Right);
+	
+}
+
+void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
+{
+	if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Top)
+	{
+		animation->SetAnimationState(AnimationState::Death);
+		owner->hitted = true;
+	}
+
+	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death 
+		&& m.collisionDirection == CollisionDirection::Left)
+	{
+		owner->isPushedLeft = true;
+	}
+
+	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
+		&& m.collisionDirection == CollisionDirection::Right)
+	{
+		owner->isPushedRight = true;
+	}
+
 }

@@ -25,7 +25,6 @@ void SceneGame::onCreate()
 
 	objects.add(levelBackgroundTiles);
 	objects.add(levelTiles);
-	//CreateEnemy();
 	CreatePlayer();
 	CreateEnemy();
 }
@@ -38,6 +37,12 @@ void SceneGame::onDestroy()
 void SceneGame::processInput()
 {
 	input.update();
+}
+
+void SceneGame::setSwitchToScene(unsigned int id)
+{
+	// Stores the id of the scene that we will transition to.
+	switchToState = id;
 }
 
 void SceneGame::Update(float deltaTime)
@@ -138,19 +143,53 @@ void SceneGame::CreateEnemy()
 	auto velocity = enemy1->addComponent<C_Velocity>();
 	auto enemyMovement = enemy1->addComponent<EnemyMovement>();
 	enemy1->addComponent<EnemyAnim>();
-	sprite->Load(workingDir.Get() + "grzybki2.png");
+	sprite->Load(workingDir.Get() + "mushroom.png");
 	sprite->SetScale(3, 3);
 
-	std::cout << "enemy id: " << enemy1->getComponent<C_InstanceID>()->Get() << std::endl;
+	std::shared_ptr<Object> enemy2 = std::make_shared<Object>(&context);
+	auto sprite2 = enemy2->addComponent<CSprite>();
+	auto collider2 = enemy2->addComponent<CBoxCollider>();
+	collider2->SetTag(Tag::Enemy);
+	auto velocity2 = enemy2->addComponent<C_Velocity>();
+	auto enemyMovement2 = enemy2->addComponent<EnemyMovement>();
+	enemy2->addComponent<EnemyAnim>();
+	sprite2->Load(workingDir.Get() + "mushroom.png");
+	sprite2->SetScale(3, 3);
+
+	std::shared_ptr<Object> enemy3 = std::make_shared<Object>(&context);
+	auto sprite3 = enemy3->addComponent<CSprite>();
+	auto collider3 = enemy3->addComponent<CBoxCollider>();
+	collider3->SetTag(Tag::Enemy);
+	auto velocity3 = enemy3->addComponent<C_Velocity>();
+	auto enemyMovement3 = enemy3->addComponent<EnemyTurtleMovement>();
+	enemy3->addComponent<EnemyTurtleAnim>();
+	sprite3->Load(workingDir.Get() + "turtle.png");
+	sprite3->SetScale(3, 3);
+
+	std::cout << "enemy1 id: " << enemy1->getComponent<C_InstanceID>()->Get() << std::endl;
+	std::cout << "enemy2 id: " << enemy2->getComponent<C_InstanceID>()->Get() << std::endl;
+	std::cout << "enemy3 id: " << enemy3->getComponent<C_InstanceID>()->Get() << std::endl;
 
 	enemy1->transform->setPosition(31.0f * 48.0f, 500.0f);
+	enemy2->transform->setPosition(41.0f * 48.0f, 500.0f);
+	enemy3->transform->setPosition(92.0f * 48.0f, 500.0f);
+
+	// Animations setups **************************************************************************************************
 
 	auto animation = enemy1->addComponent<CAnimation>();
+	auto animation2 = enemy2->addComponent<CAnimation>();
+	auto animation3 = enemy3->addComponent<CAnimation>();
 
-	int enemyTextureID = textureAllocator.add(workingDir.Get() + "grzybki2.png");
+	int enemyTextureID = textureAllocator.add(workingDir.Get() + "mushroom.png");
+	int enemyTurtleTextureID = textureAllocator.add(workingDir.Get() + "turtle.png");
 
 	const int frameWidth = 16;
 	const int frameHeight = 16;
+
+	const int frameWidthTurtle = 16;
+	const int frameHeightTurtle = 24;
+
+	// Mushrooms animations
 
 	std::shared_ptr<Animation> walkAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> deathAnimation = std::make_shared<Animation>(FaceDirection::Right);
@@ -162,19 +201,47 @@ void SceneGame::CreateEnemy()
 	walkAnimation->AddFrame(enemyTextureID, 16, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 	walkAnimation->AddFrame(enemyTextureID, 0, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 
-	
-
 	deathAnimation->AddFrame(enemyTextureID, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 	deathAnimation->AddFrame(enemyTextureID, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 	deathAnimation->AddFrame(enemyTextureID, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 
 	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 	animation->AddAnimation(AnimationState::Death, deathAnimation);
-	
+
+	animation2->AddAnimation(AnimationState::Walk, walkAnimation);
+	animation2->AddAnimation(AnimationState::Death, deathAnimation);
+
+	// Turtle animations
+
+	std::shared_ptr<Animation> walkAnimationTurtle = std::make_shared<Animation>(FaceDirection::Right);
+	std::shared_ptr<Animation> deathAnimationTurtle = std::make_shared<Animation>(FaceDirection::Right);
+
+	walkAnimationTurtle->AddFrame(enemyTurtleTextureID, 0, 0, frameHeightTurtle, frameWidthTurtle, walkAnimFrameSeconds);
+	walkAnimationTurtle->AddFrame(enemyTurtleTextureID, 16, 0, frameHeightTurtle, frameWidthTurtle, walkAnimFrameSeconds);
+	walkAnimationTurtle->AddFrame(enemyTurtleTextureID, 0, 0, frameHeightTurtle, frameWidthTurtle, walkAnimFrameSeconds);
+
+	deathAnimationTurtle->AddFrame(enemyTurtleTextureID, 32, 0, frameHeightTurtle, frameWidthTurtle, 0.2f);
+	deathAnimationTurtle->AddFrame(enemyTurtleTextureID, 32, 0, frameHeightTurtle, frameWidthTurtle, 0.2f);
+	deathAnimationTurtle->AddFrame(enemyTurtleTextureID, 32, 0, frameHeightTurtle, frameWidthTurtle, 0.2f);
+
+	animation3->AddAnimation(AnimationState::Walk, walkAnimationTurtle);
+	animation3->AddAnimation(AnimationState::Death, deathAnimationTurtle);
+
+	// Colliders setups **************************************************************************************************
 
 	collider->SetCollidable(sf::FloatRect(0, 0, 48, 48));
 	collider->SetLayer(CollisionLayer::Default);
 
-	//objects.add(levelTiles);
+	collider2->SetCollidable(sf::FloatRect(0, 0, 48, 48));
+	collider2->SetLayer(CollisionLayer::Default);
+
+	collider3->SetCollidable(sf::FloatRect(0, 0, 48, 48));
+	collider3->SetOffset(0.0f, 12.0f);
+	collider3->SetLayer(CollisionLayer::Default);
+
+	// Add object **************************************************************************************************
+
 	objects.add(enemy1);
+	objects.add(enemy2);
+	objects.add(enemy3);
 }
