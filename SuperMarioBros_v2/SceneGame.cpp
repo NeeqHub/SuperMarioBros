@@ -92,7 +92,7 @@ void SceneGame::CreatePlayer()
 	const int frameWidth = 16;
 	const int frameHeight = 16;
 
-	std::shared_ptr<Animation> deathAnimation = std::make_shared<Animation>(FaceDirection::Right);
+	std::shared_ptr<Animation> deathAnimation = std::make_shared<Animation>(FaceDirection::None);
 	std::shared_ptr<Animation> idleAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> walkAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> jumpAnimation = std::make_shared<Animation>(FaceDirection::Right);
@@ -100,7 +100,7 @@ void SceneGame::CreatePlayer()
 	// How long we want to show each frame.
 	const float idleAnimFrameSeconds = 0.1f;
 	const float walkAnimFrameSeconds = 0.06f;
-	const float jumpAnimFrameSeconds = 0.1f;
+	const float jumpAnimFrameSeconds = 0.02f;
 
 
 	idleAnimation->AddFrame(marioTextureID, 0, 0, frameHeight, frameWidth, idleAnimFrameSeconds);
@@ -177,15 +177,39 @@ void SceneGame::CreateEnemy()
 	sprite3->Load(workingDir.Get() + "turtle.png");
 	sprite3->SetScale(3, 3);
 
+	std::shared_ptr<Object> enemy5 = std::make_shared<Object>(&context);
+	auto sprite5 = enemy5->addComponent<CSprite>();
+	auto collider5 = enemy5->addComponent<CBoxCollider>();
+	collider5->SetTag(Tag::EnemyTurtle);
+	auto velocity5 = enemy5->addComponent<C_Velocity>();
+	auto enemyMovement5 = enemy5->addComponent<EnemyTurtleMovement>();
+	enemy5->addComponent<EnemyTurtleAnim>();
+	sprite5->Load(workingDir.Get() + "turtle.png");
+	sprite5->SetScale(3, 3);
+
+	std::shared_ptr<Object> enemy6 = std::make_shared<Object>(&context);
+	auto sprite6 = enemy6->addComponent<CSprite>();
+	auto collider6 = enemy6->addComponent<CBoxCollider>();
+	collider6->SetTag(Tag::Enemy);
+	auto velocity6 = enemy6->addComponent<C_Velocity>();
+	auto enemyMovement6 = enemy6->addComponent<EnemyMovement>();
+	enemy6->addComponent<EnemyAnim>();
+	sprite6->Load(workingDir.Get() + "mushroom.png");
+	sprite6->SetScale(3, 3);
+
 	std::cout << "enemy1 id: " << enemy1->getComponent<C_InstanceID>()->Get() << std::endl;
 	std::cout << "enemy2 id: " << enemy2->getComponent<C_InstanceID>()->Get() << std::endl;
 	std::cout << "enemy3 id: " << enemy3->getComponent<C_InstanceID>()->Get() << std::endl;
 	std::cout << "enemy4 id: " << enemy4->getComponent<C_InstanceID>()->Get() << std::endl;
+	std::cout << "enemy5 id: " << enemy5->getComponent<C_InstanceID>()->Get() << std::endl;
+	std::cout << "enemy6 id: " << enemy6->getComponent<C_InstanceID>()->Get() << std::endl;
 
 	enemy1->transform->setPosition(31.0f * 48.0f, 500.0f);
 	enemy2->transform->setPosition(41.0f * 48.0f, 500.0f);
-	enemy3->transform->setPosition(92.0f * 48.0f, 500.0f);
+	enemy3->transform->setPosition(95.0f * 48.0f, 500.0f);
 	enemy4->transform->setPosition(90.0f * 48.0f, 500.0f);
+	enemy5->transform->setPosition(51.0f * 48.0f, 500.0f);
+	enemy6->transform->setPosition(106.0f * 48.0f, 500.0f);
 
 	// Animations setups **************************************************************************************************
 
@@ -193,10 +217,10 @@ void SceneGame::CreateEnemy()
 	auto animation2 = enemy2->addComponent<CAnimation>();
 	auto animation4 = enemy4->addComponent<CAnimation>();
 	auto animation3 = enemy3->addComponent<CAnimation>();
+	auto animation5 = enemy5->addComponent<CAnimation>();
+	auto animation6 = enemy6->addComponent<CAnimation>();
 
 	int enemyTextureID = textureAllocator.add(workingDir.Get() + "mushroom.png");
-	int enemyTextureID2 = textureAllocator.add(workingDir.Get() + "mushroom.png");
-	int enemyTextureID3 = textureAllocator.add(workingDir.Get() + "mushroom.png");
 	int enemyTurtleTextureID = textureAllocator.add(workingDir.Get() + "turtle.png");
 
 	const int frameWidth = 16;
@@ -210,12 +234,6 @@ void SceneGame::CreateEnemy()
 	std::shared_ptr<Animation> walkAnimation = std::make_shared<Animation>(FaceDirection::Right);
 	std::shared_ptr<Animation> deathAnimation = std::make_shared<Animation>(FaceDirection::Right);
 
-	std::shared_ptr<Animation> walkAnimation2 = std::make_shared<Animation>(FaceDirection::Right);
-	std::shared_ptr<Animation> deathAnimation2 = std::make_shared<Animation>(FaceDirection::Right);
-
-	std::shared_ptr<Animation> walkAnimation3 = std::make_shared<Animation>(FaceDirection::Right);
-	std::shared_ptr<Animation> deathAnimation3 = std::make_shared<Animation>(FaceDirection::Right);
-
 	const float idleAnimFrameSeconds = 0.1f;
 	const float walkAnimFrameSeconds = 0.2f;
 
@@ -227,30 +245,17 @@ void SceneGame::CreateEnemy()
 	deathAnimation->AddFrame(enemyTextureID, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 	deathAnimation->AddFrame(enemyTextureID, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 
-	walkAnimation2->AddFrame(enemyTextureID2, 0, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	walkAnimation2->AddFrame(enemyTextureID2, 16, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	walkAnimation2->AddFrame(enemyTextureID2, 0, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-
-	deathAnimation2->AddFrame(enemyTextureID2, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	deathAnimation2->AddFrame(enemyTextureID2, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	deathAnimation2->AddFrame(enemyTextureID2, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-
-	walkAnimation3->AddFrame(enemyTextureID3, 0, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	walkAnimation3->AddFrame(enemyTextureID3, 16, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	walkAnimation3->AddFrame(enemyTextureID3, 0, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-
-	deathAnimation3->AddFrame(enemyTextureID3, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	deathAnimation3->AddFrame(enemyTextureID3, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-	deathAnimation3->AddFrame(enemyTextureID3, 32, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
-
 	animation->AddAnimation(AnimationState::Walk, walkAnimation);
 	animation->AddAnimation(AnimationState::Death, deathAnimation);
 
-	animation2->AddAnimation(AnimationState::Walk, walkAnimation2);
-	animation2->AddAnimation(AnimationState::Death, deathAnimation2);
+	animation2->AddAnimation(AnimationState::Walk, walkAnimation);
+	animation2->AddAnimation(AnimationState::Death, deathAnimation);
 
-	animation4->AddAnimation(AnimationState::Walk, walkAnimation3);
-	animation4->AddAnimation(AnimationState::Death, deathAnimation3);
+	animation4->AddAnimation(AnimationState::Walk, walkAnimation);
+	animation4->AddAnimation(AnimationState::Death, deathAnimation);
+
+	animation6->AddAnimation(AnimationState::Walk, walkAnimation);
+	animation6->AddAnimation(AnimationState::Death, deathAnimation);
 
 	// Turtle animations
 
@@ -268,6 +273,9 @@ void SceneGame::CreateEnemy()
 	animation3->AddAnimation(AnimationState::Walk, walkAnimationTurtle);
 	animation3->AddAnimation(AnimationState::Death, deathAnimationTurtle);
 
+	animation5->AddAnimation(AnimationState::Walk, walkAnimationTurtle);
+	animation5->AddAnimation(AnimationState::Death, deathAnimationTurtle);
+
 	// Colliders setups **************************************************************************************************
 
 	collider->SetCollidable(sf::FloatRect(0, 0, 48, 48));
@@ -283,12 +291,21 @@ void SceneGame::CreateEnemy()
 	collider4->SetCollidable(sf::FloatRect(0, 0, 48, 48));
 	collider4->SetLayer(CollisionLayer::Default);
 
+	collider5->SetCollidable(sf::FloatRect(0, 0, 48, 48));
+	collider5->SetOffset(0.0f, 12.0f);
+	collider5->SetLayer(CollisionLayer::Default);
+
+	collider6->SetCollidable(sf::FloatRect(0, 0, 48, 48));
+	collider6->SetLayer(CollisionLayer::Default);
+
 	// Add object **************************************************************************************************
 
 	objects.add(enemy1);
 	objects.add(enemy2);
 	objects.add(enemy3);
 	objects.add(enemy4);
+	objects.add(enemy5);
+	objects.add(enemy6);
 }
 
 

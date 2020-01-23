@@ -1113,11 +1113,17 @@ void C_MovementAnimation::Update(float deltaTime)
 {
 	if (animation->GetAnimationState() != AnimationState::Projectile)
 	{
+		if (owner->transform->getPosition().y >= 550.0f)
+		{
+			owner->hitted = true;
+			owner->disableInput = true;
+			return;
+		}
+
 		const sf::Vector2f& currentVel = velocity->Get();
 
 		if (owner->hitted == true)
 		{
-			//std::cout << "set to death";
 			animation->SetAnimationState(AnimationState::Death);
 			owner->getComponent<CBoxCollider>()->SetSize(0.0f, 0.0f);
 			owner->disableInput = true;
@@ -1200,18 +1206,47 @@ void EnemyMovement::Awake()
 
 void EnemyMovement::Update(float deltaTime)
 {
-	if (owner->instanceID->Get() == 479)
-	{
 		if (owner->hitted == false)
 		{
-			if (owner->transform->getPosition().x <= 31.0f * 48.0f)
-				enemyMovementSpeed = -enemyMovementSpeed;
+			if (owner->instanceID->Get() == 479)
+			{
+				if (owner->transform->getPosition().x <= 31.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
 
-			if (owner->transform->getPosition().x >= 38.0f * 48.0f)
-				enemyMovementSpeed = -enemyMovementSpeed;
+				if (owner->transform->getPosition().x >= 38.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+			}
+
+			if (owner->instanceID->Get() == 480)
+			{
+				if (owner->transform->getPosition().x <= 41.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+
+				if (owner->transform->getPosition().x >= 48.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+			}
+
+			if (owner->instanceID->Get() == 481)
+			{
+				if (owner->transform->getPosition().x <= 90.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+
+				if (owner->transform->getPosition().x >= 93.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+			}
+
+			if (owner->instanceID->Get() == 484)
+			{
+				if (owner->transform->getPosition().x <= 106.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+
+				if (owner->transform->getPosition().x >= 112.0f * 48.0f)
+					enemyMovementSpeed = -enemyMovementSpeed;
+			}
 
 			velocity->SetAcc(enemyMovementSpeed, 0.0f);
 			velocity->Set(0.0f, 0.0f);
+			
 		}
 		else
 		{
@@ -1222,30 +1257,6 @@ void EnemyMovement::Update(float deltaTime)
 			if (deathTime > 0.25f)
 				owner->transform->setPosition(0.0f, 2000.0f);
 		}
-	}
-	else if (owner->instanceID->Get() == 480)
-	{
-		if (owner->hitted == false)
-		{
-			if (owner->transform->getPosition().x <= 41.0f * 48.0f)
-				enemyMovementSpeed = -enemyMovementSpeed;
-
-			if (owner->transform->getPosition().x >= 48.0f * 48.0f)
-				enemyMovementSpeed = -enemyMovementSpeed;
-
-			velocity->SetAcc(enemyMovementSpeed, 0.0f);
-			velocity->Set(0.0f, 0.0f);
-		}
-		else
-		{
-			velocity->SetAcc(0.0f, 0.0f);
-			velocity->Set(0.0f, 0.0f);
-			deathTime += deltaTime;
-
-			if (deathTime > 0.40f)
-				owner->transform->setPosition(0.0f, 2000.0f);
-		}
-	}
 }
 
 EnemyAnim::EnemyAnim(Object * owner) : Component(owner)
@@ -1301,11 +1312,23 @@ void EnemyTurtleMovement::Update(float deltaTime)
 
 	if (owner->hitted == false)
 	{
-		if (owner->transform->getPosition().x <= 92.0f * 48.0f)
-			velocity->Set(enemyMovementSpeed, 0.0f);
+		if (owner->instanceID->Get() == 482)
+		{
+			if (owner->transform->getPosition().x <= 95.0f * 48.0f)
+				velocity->Set(enemyMovementSpeed, 0.0f);
 
-		if (owner->transform->getPosition().x >= 110.0f * 48.0f)
-			velocity->Set(-enemyMovementSpeed, 0.0f);
+			if (owner->transform->getPosition().x >= 105.0f * 48.0f)
+				velocity->Set(-enemyMovementSpeed, 0.0f);
+		}
+		else if(owner->instanceID->Get() == 483)
+		{
+			if (owner->transform->getPosition().x <= 51.0f * 48.0f)
+				velocity->Set(enemyMovementSpeed, 0.0f);
+
+			if (owner->transform->getPosition().x >= 58.0f * 48.0f)
+				velocity->Set(-enemyMovementSpeed, 0.0f);
+		}
+			
 	}
 	else if(owner->isPushedLeft == false && owner->isPushedRight == false)
 	{
@@ -1368,12 +1391,20 @@ void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 			{
 				owner->isPushedRight = true;
 			}
+			else
+			{
+				other->owner->hitted = true;
+			}
 			break;
 
 		case CollisionDirection::Right:
 			if (owner->hitted == true)
 			{
 				owner->isPushedLeft = true;
+			}
+			else
+			{
+				other->owner->hitted = true;
 			}
 			break;
 		}
