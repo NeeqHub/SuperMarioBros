@@ -208,15 +208,16 @@ private:
 	std::shared_ptr<C_Velocity> velocity;
 	SceneStateMachine sceneStateMachine;
 
-	const float GRAVITY = 98.0f;
+	const float GRAVITY = 9.81f;
 	const float MAX_VELOCITY = -10.0f;
 	const float MAX_AIR_TIME = 1.2f;
 
 	float timeInAir = 0.0f;
 	float jumpImpulseTime = 2.0f;
-	float jumpImpulseVel = -150.0f;
-	float jumpAccel = -1.0f;
+	float jumpImpulseVel = -10.0f;
+	float jumpAccel = -350.0f;
 
+	float totalTimeInAir;
 	float currentTime;
 };
 
@@ -425,7 +426,7 @@ class C_Collidable
 public:
 	virtual void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) {};
 	virtual void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m) {};
-	virtual void OnCollisionStay(std::shared_ptr<CBoxCollider> other) {};
+	virtual void OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m) {};
 	virtual void OnCollisionExit(std::shared_ptr<CBoxCollider> other) {};
 };
 
@@ -458,6 +459,7 @@ private:
 	
 	void ClampVelocity();
 	sf::Vector2f maxVelocity;
+	float currentTime;
 };
 
 class C_MovementAnimation : public Component
@@ -489,7 +491,7 @@ class OutputColliders : public Component, public C_Collidable
 {
 public:
 	OutputColliders(Object* owner);
-	void OnCollisionStay(std::shared_ptr<CBoxCollider> other)override;
+	void OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)override;
 	void OnCollisionExit(std::shared_ptr<CBoxCollider> other)override;
 };
 
@@ -506,12 +508,14 @@ private:
 	float deathTime;
 };
 
-class EnemyTurtleMovement : public Component
+class EnemyTurtleMovement : public Component, public C_Collidable
 {
 public:
 	EnemyTurtleMovement(Object* owner);
 	void Awake();
 	void Update(float deltaTime);
+	void OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)override;
+	void OnCollisionExit(std::shared_ptr<CBoxCollider> other)override;
 
 private:
 	std::shared_ptr<C_Velocity> velocity;

@@ -16,7 +16,7 @@ public:
 
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other);
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m);
-	void OnCollisionStay(std::shared_ptr<CBoxCollider> other);
+	void OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m);
 	void OnCollisionExit(std::shared_ptr<CBoxCollider> other);
 
 	template <typename T>

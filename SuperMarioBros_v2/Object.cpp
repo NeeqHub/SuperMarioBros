@@ -74,11 +74,11 @@ void Object::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
 	}
 }
 
-void Object::OnCollisionStay(std::shared_ptr<CBoxCollider> other)
+void Object::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
 	for (const auto& component : collidables)
 	{
-		component->OnCollisionStay(other);
+		component->OnCollisionStay(other, m);
 	}
 }
 

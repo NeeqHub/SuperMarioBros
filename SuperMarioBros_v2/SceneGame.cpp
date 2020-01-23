@@ -24,8 +24,9 @@ void SceneGame::onCreate()
 	int backgroundTextureID = textureAllocator.add(workingDir.Get() + "background_map_tiles.png");
 
 	objects.add(levelBackgroundTiles);
-	objects.add(levelTiles);
 	CreatePlayer();
+	objects.add(levelTiles);
+	
 	CreateEnemy();
 }
 
@@ -195,7 +196,7 @@ void SceneGame::CreateEnemy()
 	std::shared_ptr<Animation> deathAnimation = std::make_shared<Animation>(FaceDirection::Right);
 
 	const float idleAnimFrameSeconds = 0.1f;
-	const float walkAnimFrameSeconds = 0.2f;
+	const float walkAnimFrameSeconds = 0.8f;
 
 	walkAnimation->AddFrame(enemyTextureID, 0, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
 	walkAnimation->AddFrame(enemyTextureID, 16, 0, frameHeight, frameWidth, walkAnimFrameSeconds);
@@ -245,3 +246,5 @@ void SceneGame::CreateEnemy()
 	objects.add(enemy2);
 	objects.add(enemy3);
 }
+
+

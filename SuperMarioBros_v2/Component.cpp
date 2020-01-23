@@ -269,7 +269,7 @@ const sf::Vector2f & CTransform::getPosition() const
 }
 
 CKeyboardMovement::CKeyboardMovement(Object* owner)
-	: Component(owner), moveSpeed(3000.0f), currentTime(0.0f) {}
+	: Component(owner), moveSpeed(7.5f), currentTime(0.0f), totalTimeInAir(0.0f) {}
 
 void CKeyboardMovement::Awake()
 {
@@ -283,21 +283,26 @@ void CKeyboardMovement::setMovementSpeed(float moveSpeed)
 
 void CKeyboardMovement::Update(float deltaTime)
 {
-	//float xMove = 0.0f;	
-	//float yMove = 0.0f;
-
 	sf::Vector2f acc(0.0f, 0.0f);
 	sf::Vector2f vel(0.0f, 0.0f); 
+
+	acc.y = velocity->acceleration.y;
+
+	//std::cout << "Mario velocity.x: " << velocity->Get().x << std::endl;
+	//std::cout << "Mario velocity.y: " << velocity->Get().y << std::endl;
+	//std::cout << std::endl;
+	
+	std::cout << owner->transform->canJump << std::endl;
 
 	if (currentTime >= 5.0f)
 	{
 		//currentTime = 0.0f;
 	}
 
+	// Death animation...
 	if (owner->disableInput == true)
 	{
 		currentTime += deltaTime;
-		std::cout << currentTime << std::endl;
 
 		if(currentTime <= 0.5f)
 		velocity->SetAcc(0.0f, -250.0f);
@@ -308,46 +313,25 @@ void CKeyboardMovement::Update(float deltaTime)
 		return;
 	}
 
-		if (owner->transform->canJump == true)
-		{
-			timeInAir = 0.0f;
-			acc.y = 0.0f;
-			vel.y = 0.0f;
-		}
+	if (owner->context->input->isKeyPressed(Input::Key::Left))
+	{
+		acc.x = -moveSpeed;
+	}
+	else if (owner->context->input->isKeyPressed(Input::Key::Right))
+	{
+		acc.x = moveSpeed;
+	}
 
-		if (owner->context->input->isKeyPressed(Input::Key::Left))
-		{
-			//xMove = -moveSpeed;
-			acc.x = -moveSpeed;
-		}
-		else if (owner->context->input->isKeyPressed(Input::Key::Right))
-		{
-			//xMove = moveSpeed;
-			acc.x = moveSpeed;
-		}
+	if (owner->context->input->isKeyPressed(Input::Key::Up) && owner->transform->canJump == true)
+	{
+		acc.y = jumpAccel;
+	}
+	else
+	{
+		acc.y += GRAVITY;
+	}
 
-		if (owner->context->input->isKeyDown(Input::Key::Up) && owner->transform->canJump == true)
-		{
-			if (timeInAir < jumpImpulseTime) {
-				vel.y = jumpImpulseVel;
-			}
-			// Then slowly go higher.. 
-			else if (timeInAir < MAX_AIR_TIME) {
-				acc.y = jumpAccel;
-			}
-			// Until finally falling
-			else {
-				acc.y = GRAVITY;
-			}
-		}
-		else
-		{
-			// Prevent double jumps
-			timeInAir = MAX_AIR_TIME;
-			acc.y = GRAVITY;
-		}
-		velocity->SetAcc(acc.x, acc.y);
-		velocity->Set(vel.x, vel.y);
+	velocity->SetAcc(acc.x, acc.y);
 }
 
 CDrawable::CDrawable() : sortOrder(0) {}
@@ -815,28 +799,6 @@ S_Collidable::S_Collidable()
 
 void S_Collidable::Add(std::vector<std::shared_ptr<Object>>& objects)
 {
-	/*for (auto o : objects)
-	{
-		auto collider = o->getComponent<CBoxCollider>();
-		if (collider)
-		{
-			CollisionLayer layer = collider->GetLayer();
-
-			auto itr = collidables.find(layer);
-
-			if (itr != collidables.end())
-			{
-				collidables[layer].push_back(collider);
-			}
-			else
-			{
-				std::vector<std::shared_ptr<CBoxCollider>> objs;
-				objs.push_back(collider);
-
-				collidables.insert(std::make_pair(layer, objs));
-			}
-		}
-	}*/
 	for (auto o : objects)
 	{
 		auto collider = o->getComponent<CBoxCollider>();
@@ -929,8 +891,8 @@ void S_Collidable::ProcessCollidingObjects()
 			}
 			else
 			{
-				first->owner->OnCollisionStay(second);
-				second->owner->OnCollisionStay(first);
+				first->owner->OnCollisionStay(second, m);
+				second->owner->OnCollisionStay(first, m);
 
 				++itr;
 			}
@@ -1050,14 +1012,18 @@ void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollid
 }
 
 C_Velocity::C_Velocity(Object* owner) :
-	Component(owner), maxVelocity(500.f, 500.f) { }
+	Component(owner), velocity(0.0f, 0.0f), acceleration(0.0f, 0.0f), maxVelocity(5.f, 5.f), currentTime(0.0f) { }
 
 void C_Velocity::Update(float deltaTime)
 {	
-	velocity = velocity + (acceleration * deltaTime);
+	if(owner->getComponent<C_InstanceID>()->Get() == 478)
+	velocity.x *= 0.975f;
 
-	//std::cout << "velocity.x: " << velocity.x << " /velocity.y: " << velocity.y << std::endl;
-	//std::cout << "acc.x: " << acceleration.x << " /acc.y: " << acceleration.y << std::endl;
+	velocity.x += acceleration.x * deltaTime;
+
+	velocity.y += acceleration.y * deltaTime;
+
+	ClampVelocity();
 
 	owner->transform->addPosition(velocity);
 }
@@ -1066,7 +1032,7 @@ void C_Velocity::Set(const sf::Vector2f& vel)
 {
 	velocity = vel;
 
-	ClampVelocity();
+	//ClampVelocity();
 }
 
 void C_Velocity::SetAcc(float x, float y)
@@ -1080,7 +1046,7 @@ void C_Velocity::Set(float x, float y)
 	velocity.x = x;
 	velocity.y = y;
 
-	ClampVelocity();
+	//ClampVelocity();
 }
 
 const sf::Vector2f& C_Velocity::Get() const
@@ -1147,30 +1113,20 @@ void C_MovementAnimation::Update(float deltaTime)
 			owner->disableInput = true;
 			return;
 		}
-		//float velXAbs = fabs(currentVel.x);
-		//float velYAbs = fabs(currentVel.y);
 
-		//std::cout << "X: " << currentVel.x << std::endl;
-		//std::cout << "Y: " << currentVel.y << std::endl;
-
-		if (currentVel.x != 0.0f)//&& currentVel.y >= 0.f)
+		if (currentVel.x >= 0.5f || currentVel.x <= -0.5f)
 		{
 			animation->SetAnimationState(AnimationState::Walk);
 
-			//float velXAbs = fabs(currentVel.x);
-			//float velYAbs = fabs(currentVel.y);
-
-			//if (velXAbs > velYAbs)
-			//{
-				if (currentVel.x < 0)
-				{
-					animation->SetAnimationDirection(FaceDirection::Left);
-				}
-				else
-				{
-					animation->SetAnimationDirection(FaceDirection::Right);
-				}
-			//}
+			if (currentVel.x < 0)
+			{
+				animation->SetAnimationDirection(FaceDirection::Left);
+			}
+			else
+			{
+				animation->SetAnimationDirection(FaceDirection::Right);
+			}
+	
 		}
 		else if (currentVel.y < 0.f)
 		{
@@ -1192,9 +1148,10 @@ OutputColliders::OutputColliders(Object * owner) : Component(owner)
 {
 }
 
-void OutputColliders::OnCollisionStay(std::shared_ptr<CBoxCollider> other)
+void OutputColliders::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
-	owner->transform->canJump = true;
+	if(m.collisionDirection == CollisionDirection::Top)
+		owner->transform->canJump = true;
 }
 
 void OutputColliders::OnCollisionExit(std::shared_ptr<CBoxCollider> other)
@@ -1263,48 +1220,6 @@ void EnemyMovement::Update(float deltaTime)
 	}
 }
 
-EnemyTurtleMovement::EnemyTurtleMovement(Object * owner) : Component(owner), enemyMovementSpeed(100.0f), deathTime(0.0f)
-{
-}
-
-void EnemyTurtleMovement::Awake()
-{
-	velocity = owner->getComponent<C_Velocity>();
-}
-
-void EnemyTurtleMovement::Update(float deltaTime)
-{
-	if (owner->isPushedLeft == true)
-	{
-		velocity->SetAcc(-enemyMovementSpeed - 100.0f, 0.0f);
-		velocity->Set(0.0f, 0.0f);
-		return;
-	}
-
-	if (owner->isPushedRight == true)
-	{
-		velocity->SetAcc(-enemyMovementSpeed + 100.0f, 0.0f);
-		velocity->Set(0.0f, 0.0f);
-		return;
-	}
-
-	if (owner->hitted == false)
-	{
-		if (owner->transform->getPosition().x <= 92.0f * 48.0f)
-			velocity->SetAcc(enemyMovementSpeed, 0.0f);
-
-		if (owner->transform->getPosition().x >= 110.0f * 48.0f)
-			velocity->SetAcc(-enemyMovementSpeed, 0.0f);
-
-		velocity->Set(0.0f, 0.0f);
-	}
-	else
-	{
-		velocity->SetAcc(0.0f, 0.0f);
-		velocity->Set(0.0f, 0.0f);
-	}
-}
-
 EnemyAnim::EnemyAnim(Object * owner) : Component(owner)
 {
 }
@@ -1332,6 +1247,60 @@ void EnemyAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m
 	}
 }
 
+EnemyTurtleMovement::EnemyTurtleMovement(Object * owner) : Component(owner), enemyMovementSpeed(2.0f), deathTime(0.0f)
+{
+}
+
+void EnemyTurtleMovement::Awake()
+{
+	velocity = owner->getComponent<C_Velocity>();
+}
+
+void EnemyTurtleMovement::Update(float deltaTime)
+{
+	/*
+	std::cout << "Turtle velocity.x: " << velocity->Get().x;
+	std::cout << "Turtle velocity.y: " << velocity->Get().y;
+	std::cout << std::endl;
+	*/
+
+	if (owner->isPushedLeft == true)
+	{
+		velocity->Set(enemyMovementSpeed, 0.0f);
+		return;
+	}
+
+	if (owner->isPushedRight == true)
+	{
+		velocity->Set(-enemyMovementSpeed, 0.0f);
+		return;
+	}
+
+	if (owner->hitted == false)
+	{
+		if (owner->transform->getPosition().x <= 92.0f * 48.0f)
+			velocity->Set(enemyMovementSpeed, 0.0f);
+
+		if (owner->transform->getPosition().x >= 110.0f * 48.0f)
+			velocity->Set(-enemyMovementSpeed, 0.0f);
+	}
+	else
+	{
+		velocity->SetAcc(0.0f, 0.0f);
+		velocity->Set(0.0f, 0.0f);
+	}
+}
+
+void EnemyTurtleMovement::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)
+{
+	owner->transform->canJump = true;
+}
+
+void EnemyTurtleMovement::OnCollisionExit(std::shared_ptr<CBoxCollider> other)
+{
+	owner->transform->canJump = false;
+}
+
 EnemyTurtleAnim::EnemyTurtleAnim(Object * owner) : Component(owner)
 {
 }
@@ -1344,11 +1313,11 @@ void EnemyTurtleAnim::Awake()
 
 void EnemyTurtleAnim::Update(float deltaTime)
 {
-	const sf::Vector2f currentAcc= velocity->acceleration;
+	const sf::Vector2f currentVelocity = velocity->Get();
 
-	if (currentAcc.x > 0.0f)
+	if (currentVelocity.x > 0.0f)
 		animation->SetAnimationDirection(FaceDirection::Left);
-	else if (currentAcc.x < 0.0f)
+	else if (currentVelocity.x < 0.0f)
 		animation->SetAnimationDirection(FaceDirection::Right);
 	
 }
