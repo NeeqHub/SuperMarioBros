@@ -264,7 +264,10 @@ enum Tag
 	Defult,
 	Player,
 	Enemy,
-	EnemyTurtle
+	EnemyTurtle,
+	Brick,
+	Surprise,
+	Coin
 };
 
 class CBoxCollider : public CCollider
@@ -546,6 +549,17 @@ public:
 private:
 	std::shared_ptr<CAnimation> animation;
 	std::shared_ptr<C_Velocity> velocity;
+};
+
+class BlocksAnim : public Component
+{
+public:
+	BlocksAnim(Object* owner);
+	void Update(float deltaTime) override;
+	void OnDestory();
+private:
+	float currentTime;
+	float currentY;
 };
 
 

@@ -1160,9 +1160,16 @@ OutputColliders::OutputColliders(Object * owner) : Component(owner)
 
 void OutputColliders::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
-	if (other->GetTag() == Tag::Defult && m.collisionDirection == CollisionDirection::Bottom)
+	if (other->GetTag() == Tag::Surprise && m.collisionDirection == CollisionDirection::Bottom)
 	{
-		other->owner->transform->setPosition(0.0f, 2000.0f);
+		owner->getComponent<C_Velocity>()->Set(owner->getComponent<C_Velocity>()->Get().x, owner->getComponent<C_Velocity>()->Get().y + 5.0f);
+		other->owner->getComponent<BlocksAnim>()->OnDestory();
+	}
+
+	if (other->GetTag() == Tag::Brick && m.collisionDirection == CollisionDirection::Bottom)
+	{
+		owner->getComponent<C_Velocity>()->Set(owner->getComponent<C_Velocity>()->Get().x, owner->getComponent<C_Velocity>()->Get().y + 5.0f);
+		other->owner->getComponent<BlocksAnim>()->OnDestory();
 	}
 }
 
@@ -1340,30 +1347,6 @@ void EnemyTurtleAnim::Update(float deltaTime)
 
 void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
-	/*if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Top)
-	{
-		animation->SetAnimationState(AnimationState::Death);
-		owner->hitted = true;
-	}
-
-	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Walk && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)		
-	{
-		other->owner->hitted = true;
-
-	}
-	
-	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
-			&& m.collisionDirection == CollisionDirection::Left)
-	{
-		owner->isPushedRight = true;
-	}
-
-	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
-			&& m.collisionDirection == CollisionDirection::Right)
-	{
-		owner->isPushedLeft = true;
-	}*/
-
 	Tag objectTag;
 	objectTag = other->GetTag();
 
@@ -1419,11 +1402,39 @@ void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 		}
 	break;
 	}
-
-	/*if (animation->GetAnimationState() == AnimationState::Death && other->GetTag() == Tag::Defult && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)
-	{
-		owner->transform->setPosition(0.0f, 2000.0f);
-	}*/
-
 	
+}
+
+BlocksAnim::BlocksAnim(Object * owner) : Component(owner), currentTime(0.0f)
+{
+}
+
+void BlocksAnim::Update(float deltaTime)
+{
+	if (owner->hitted == true && owner->getComponent<CBoxCollider>()->GetTag() == Tag::Brick)
+	{
+		currentTime += deltaTime;
+		owner->transform->setY(currentY - 10.0f);
+		
+		if (currentTime >= 0.3f)
+		{
+			owner->transform->setY(currentY);
+			owner->hitted = false;
+		}		
+	}
+}
+
+void BlocksAnim::OnDestory()
+{
+	if (owner->getComponent<CBoxCollider>()->GetTag() == Tag::Surprise)
+	{
+		owner->getComponent<CSprite>()->SetTextureRect(32.0f, 16.0f, 16.0f, 16.0f);
+	}
+
+	if (owner->getComponent<CBoxCollider>()->GetTag() == Tag::Brick)
+	{
+		//owner->getComponent<CAnimation>()->SetAnimationState(AnimationState::Death);
+		owner->hitted = true;
+		currentY = owner->transform->getPosition().y;
+	}
 }

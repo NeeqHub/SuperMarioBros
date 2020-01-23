@@ -23,6 +23,8 @@ std::vector<std::shared_ptr<Object>> STile::LoadMapTiles(const std::string& file
 		std::shared_ptr<Object> tileObject = std::make_shared<Object>(&context);
 		auto sprite = tileObject->addComponent<CSprite>();
 		auto collider = tileObject->addComponent<CBoxCollider>();
+		tileObject->addComponent<BlocksAnim>();
+		auto animation = tileObject->addComponent<CAnimation>();
 		sprite->Load(context.workingDir->Get() + "map_tiles.png");
 
 		// 0 ground
@@ -36,16 +38,26 @@ std::vector<std::shared_ptr<Object>> STile::LoadMapTiles(const std::string& file
 		// 8 bottom-left pipe
 		// 9 bottom-right pipe
 		
+		/*if (tile.tileID == 1)
+		{
+			std::shared_ptr<Animation> deathAnimationBrick = std::make_shared<Animation>(FaceDirection::Right);
+			deathAnimationBrick->AddFrame(8, 0, 48, 16, 16, 0.2f);
+			deathAnimationBrick->AddFrame(8, 16, 48, 16, 16, 0.2f);
+			deathAnimationBrick->AddFrame(8, 32, 48, 16, 16, 0.2f);
+
+			animation->AddAnimation(AnimationState::Death, deathAnimationBrick);
+		}*/
+
 		switch (tile.tileID)
 		{
-		case 0: sprite->SetTextureRect(0, 0, 16, 16); break;
-		case 1: sprite->SetTextureRect(16, 0, 16, 16); break;
-		case 2: sprite->SetTextureRect(32, 0, 16, 16); break;
-		case 4: sprite->SetTextureRect(0, 16, 16, 16); break;
-		case 6: sprite->SetTextureRect(0, 32, 16, 16);  break;
-		case 7: sprite->SetTextureRect(16, 32, 16, 16);  break;
-		case 8: sprite->SetTextureRect(0, 48, 16, 16);  break;
-		case 9: sprite->SetTextureRect(16, 48, 16, 16);  break;
+		case 0: sprite->SetTextureRect(0, 0, 16, 16); collider->SetTag(Tag::Defult); break;
+		case 1: sprite->SetTextureRect(16, 0, 16, 16); collider->SetTag(Tag::Brick); break;
+		case 2: sprite->SetTextureRect(32, 0, 16, 16); collider->SetTag(Tag::Surprise); break;
+		case 4: sprite->SetTextureRect(0, 16, 16, 16); collider->SetTag(Tag::Defult); break;
+		case 6: sprite->SetTextureRect(0, 32, 16, 16); collider->SetTag(Tag::Defult); break;
+		case 7: sprite->SetTextureRect(16, 32, 16, 16); collider->SetTag(Tag::Defult); break;
+		case 8: sprite->SetTextureRect(0, 48, 16, 16); collider->SetTag(Tag::Defult); break;
+		case 9: sprite->SetTextureRect(16, 48, 16, 16); collider->SetTag(Tag::Defult); break;
 
 		default:
 			break;
@@ -60,7 +72,6 @@ std::vector<std::shared_ptr<Object>> STile::LoadMapTiles(const std::string& file
 		float height = 16.0f * tileScale;
 
 		collider->SetCollidable(sf::FloatRect(left, top, width, height));
-		collider->SetTag(Tag::Defult);
 		collider->SetLayer(CollisionLayer::Tile);
 
 		tileObjects.emplace_back(tileObject);

@@ -2,6 +2,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <iostream>
 
 template <class T>
 class ResourceManager
@@ -24,8 +25,8 @@ public:
 
 		resources.insert(make_pair(filePath,std::make_pair(currentID, resource)));
 		
+		std::cout << currentID + 1 << std::endl;
 		return currentID++;
-
 	}
 
 	void remove(int id)

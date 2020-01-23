@@ -87,6 +87,7 @@ void SceneGame::CreatePlayer()
 	auto animation = mario->addComponent<CAnimation>();
 
 	int marioTextureID = textureAllocator.add(workingDir.Get() + "mario.png");
+	int brickAnimTextureID = textureAllocator.add(workingDir.Get() + "brickDestroy.png");
 
 	const int frameWidth = 16;
 	const int frameHeight = 16;
