@@ -289,7 +289,7 @@ void CKeyboardMovement::Update(float deltaTime)
 	acc.y = velocity->acceleration.y;
 
 	//std::cout << "Mario velocity.x: " << velocity->Get().x << std::endl;
-	//std::cout << "Mario velocity.y: " << velocity->Get().y << std::endl;
+	std::cout << "Mario velocity.y: " << velocity->Get().y << std::endl;
 	//std::cout << std::endl;
 	
 	std::cout << owner->transform->canJump << std::endl;
@@ -316,22 +316,32 @@ void CKeyboardMovement::Update(float deltaTime)
 	if (owner->context->input->isKeyPressed(Input::Key::Left))
 	{
 		acc.x = -moveSpeed;
+		velocity->SetAcc(acc.x, acc.y);
 	}
 	else if (owner->context->input->isKeyPressed(Input::Key::Right))
 	{
 		acc.x = moveSpeed;
+		velocity->SetAcc(acc.x, acc.y);
 	}
 
 	if (owner->context->input->isKeyPressed(Input::Key::Up) && owner->transform->canJump == true)
 	{
 		acc.y = jumpAccel;
+		velocity->SetAcc(acc.x, acc.y);
+	}
+	else if(owner->transform->canJump == true)
+	{
+		vel.y = 0.2f;
+		velocity->Set(velocity->Get().x, vel.y);
 	}
 	else
 	{
-		acc.y += GRAVITY;
+		acc.y = GRAVITY;
+		velocity->SetAcc(acc.x, acc.y);
 	}
 
-	velocity->SetAcc(acc.x, acc.y);
+	//velocity->SetAcc(acc.x, acc.y);
+	//velocity->Set(velocity->Get().x, vel.y);
 }
 
 CDrawable::CDrawable() : sortOrder(0) {}
@@ -1012,7 +1022,7 @@ void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollid
 }
 
 C_Velocity::C_Velocity(Object* owner) :
-	Component(owner), velocity(0.0f, 0.0f), acceleration(0.0f, 0.0f), maxVelocity(5.f, 5.f), currentTime(0.0f) { }
+	Component(owner), velocity(0.0f, 0.0f), acceleration(0.0f, 0.0f), maxVelocity(8.f, 8.f), currentTime(0.0f) { }
 
 void C_Velocity::Update(float deltaTime)
 {	
@@ -1114,7 +1124,7 @@ void C_MovementAnimation::Update(float deltaTime)
 			return;
 		}
 
-		if (currentVel.x >= 0.5f || currentVel.x <= -0.5f)
+		if (owner->transform->canJump == true && currentVel.x != 0.0f)
 		{
 			animation->SetAnimationState(AnimationState::Walk);
 
@@ -1128,14 +1138,14 @@ void C_MovementAnimation::Update(float deltaTime)
 			}
 	
 		}
-		else if (currentVel.y < 0.f)
+		else if (owner->transform->canJump == false)
 		{
 			animation->SetAnimationState(AnimationState::Jump);
 
-			//if (currentVel.x < 0)
-				//animation->SetAnimationDirection(FaceDirection::Left);
-			//else
-				//animation->SetAnimationDirection(FaceDirection::Right);
+			if (currentVel.x < 0)
+				animation->SetAnimationDirection(FaceDirection::Left);
+			else
+				animation->SetAnimationDirection(FaceDirection::Right);
 		}
 		else
 		{
@@ -1152,6 +1162,9 @@ void OutputColliders::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manif
 {
 	if(m.collisionDirection == CollisionDirection::Top)
 		owner->transform->canJump = true;
+	else if (m.collisionDirection == CollisionDirection::Bottom || m.collisionDirection == CollisionDirection::Right
+		|| m.collisionDirection == CollisionDirection::Left)
+		owner->transform->canJump = false;
 }
 
 void OutputColliders::OnCollisionExit(std::shared_ptr<CBoxCollider> other)
@@ -1214,7 +1227,7 @@ void EnemyMovement::Update(float deltaTime)
 			velocity->Set(0.0f, 0.0f);
 			deathTime += deltaTime;
 
-			if (deathTime > 0.25f)
+			if (deathTime > 0.40f)
 				owner->transform->setPosition(0.0f, 2000.0f);
 		}
 	}
@@ -1258,21 +1271,15 @@ void EnemyTurtleMovement::Awake()
 
 void EnemyTurtleMovement::Update(float deltaTime)
 {
-	/*
-	std::cout << "Turtle velocity.x: " << velocity->Get().x;
-	std::cout << "Turtle velocity.y: " << velocity->Get().y;
-	std::cout << std::endl;
-	*/
-
 	if (owner->isPushedLeft == true)
 	{
-		velocity->Set(enemyMovementSpeed, 0.0f);
+		velocity->Set(enemyMovementSpeed * 5.0f, 0.0f);
 		return;
 	}
 
 	if (owner->isPushedRight == true)
 	{
-		velocity->Set(-enemyMovementSpeed, 0.0f);
+		velocity->Set(-enemyMovementSpeed * 5.0f, 0.0f);
 		return;
 	}
 
@@ -1330,16 +1337,36 @@ void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 		owner->hitted = true;
 	}
 
+	if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)
+	{
+		owner->hitted = true;
+	}
+
+	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
+		&& owner->isPushedLeft == true || owner->isPushedRight == true && m.collisionDirection == CollisionDirection::Right || m.collisionDirection == CollisionDirection::Left)
+	{
+		other->owner->hitted = true;
+
+	}
+
 	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death 
 		&& m.collisionDirection == CollisionDirection::Left)
 	{
-		owner->isPushedLeft = true;
+		owner->isPushedRight= true;
 	}
 
 	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
 		&& m.collisionDirection == CollisionDirection::Right)
 	{
-		owner->isPushedRight = true;
+		owner->isPushedLeft = true;
 	}
+
+	if (other->GetTag() == Tag::Enemy && animation->GetAnimationState() == AnimationState::Death
+		&& m.collisionDirection == CollisionDirection::Right || m.collisionDirection == CollisionDirection::Left)
+	{
+		other->owner->hitted = true;
+	}
+
+	
 
 }

@@ -215,7 +215,7 @@ private:
 	float timeInAir = 0.0f;
 	float jumpImpulseTime = 2.0f;
 	float jumpImpulseVel = -10.0f;
-	float jumpAccel = -350.0f;
+	float jumpAccel = -500.0f;
 
 	float totalTimeInAir;
 	float currentTime;
