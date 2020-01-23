@@ -289,10 +289,10 @@ void CKeyboardMovement::Update(float deltaTime)
 	acc.y = velocity->acceleration.y;
 
 	//std::cout << "Mario velocity.x: " << velocity->Get().x << std::endl;
-	std::cout << "Mario velocity.y: " << velocity->Get().y << std::endl;
+	//std::cout << "Mario velocity.y: " << velocity->Get().y << std::endl;
 	//std::cout << std::endl;
 	
-	std::cout << owner->transform->canJump << std::endl;
+	//std::cout << owner->transform->canJump << std::endl;
 
 	if (currentTime >= 5.0f)
 	{
@@ -1117,7 +1117,7 @@ void C_MovementAnimation::Update(float deltaTime)
 
 		if (owner->hitted == true)
 		{
-			std::cout << "set to death";
+			//std::cout << "set to death";
 			animation->SetAnimationState(AnimationState::Death);
 			owner->getComponent<CBoxCollider>()->SetSize(0.0f, 0.0f);
 			owner->disableInput = true;
@@ -1156,6 +1156,14 @@ void C_MovementAnimation::Update(float deltaTime)
 
 OutputColliders::OutputColliders(Object * owner) : Component(owner)
 {
+}
+
+void OutputColliders::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
+{
+	if (other->GetTag() == Tag::Defult && m.collisionDirection == CollisionDirection::Bottom)
+	{
+		other->owner->transform->setPosition(0.0f, 2000.0f);
+	}
 }
 
 void OutputColliders::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)
@@ -1271,13 +1279,14 @@ void EnemyTurtleMovement::Awake()
 
 void EnemyTurtleMovement::Update(float deltaTime)
 {
+	//std::cout << velocity->Get().x << std::endl;
+
 	if (owner->isPushedLeft == true)
 	{
 		velocity->Set(enemyMovementSpeed * 5.0f, 0.0f);
 		return;
 	}
-
-	if (owner->isPushedRight == true)
+	else if (owner->isPushedRight == true)
 	{
 		velocity->Set(-enemyMovementSpeed * 5.0f, 0.0f);
 		return;
@@ -1291,7 +1300,7 @@ void EnemyTurtleMovement::Update(float deltaTime)
 		if (owner->transform->getPosition().x >= 110.0f * 48.0f)
 			velocity->Set(-enemyMovementSpeed, 0.0f);
 	}
-	else
+	else if(owner->isPushedLeft == false && owner->isPushedRight == false)
 	{
 		velocity->SetAcc(0.0f, 0.0f);
 		velocity->Set(0.0f, 0.0f);
@@ -1331,42 +1340,90 @@ void EnemyTurtleAnim::Update(float deltaTime)
 
 void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
-	if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Top)
+	/*if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Top)
 	{
 		animation->SetAnimationState(AnimationState::Death);
 		owner->hitted = true;
 	}
 
-	if (other->GetTag() == Tag::Player && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)
-	{
-		owner->hitted = true;
-	}
-
-	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
-		&& owner->isPushedLeft == true || owner->isPushedRight == true && m.collisionDirection == CollisionDirection::Right || m.collisionDirection == CollisionDirection::Left)
+	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Walk && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)		
 	{
 		other->owner->hitted = true;
 
 	}
-
-	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death 
-		&& m.collisionDirection == CollisionDirection::Left)
+	
+	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
+			&& m.collisionDirection == CollisionDirection::Left)
 	{
-		owner->isPushedRight= true;
+		owner->isPushedRight = true;
 	}
 
 	if (other->GetTag() == Tag::Player && animation->GetAnimationState() == AnimationState::Death
-		&& m.collisionDirection == CollisionDirection::Right)
+			&& m.collisionDirection == CollisionDirection::Right)
 	{
 		owner->isPushedLeft = true;
+	}*/
+
+	Tag objectTag;
+	objectTag = other->GetTag();
+
+	CollisionDirection collisionDir;
+	collisionDir = m.collisionDirection;
+
+	switch (objectTag)
+	{
+	case Tag::Player: 
+		switch (collisionDir)
+		{
+		case CollisionDirection::Top: 
+			animation->SetAnimationState(AnimationState::Death);
+			owner->hitted = true;
+			break;
+
+		case CollisionDirection::Left:
+			if (owner->hitted == true)
+			{
+				owner->isPushedRight = true;
+			}
+			break;
+
+		case CollisionDirection::Right:
+			if (owner->hitted == true)
+			{
+				owner->isPushedLeft = true;
+			}
+			break;
+		}
+	break;
+
+	case Tag::Enemy:
+		other->owner->transform->setPosition(0.0f, 2000.0f);
+	break;
+
+	case Tag::Defult:
+		switch (collisionDir)
+		{
+		case CollisionDirection::Left: 
+			if (owner->hitted == true)
+			{
+				owner->transform->setPosition(0.0f, 2000.0f);
+			}
+			break;
+
+		case CollisionDirection::Right: 
+			if (owner->hitted == true)
+			{
+				owner->transform->setPosition(0.0f, 2000.0f);
+			}
+			break;
+		}
+	break;
 	}
 
-	if (other->GetTag() == Tag::Enemy && animation->GetAnimationState() == AnimationState::Death
-		&& m.collisionDirection == CollisionDirection::Right || m.collisionDirection == CollisionDirection::Left)
+	/*if (animation->GetAnimationState() == AnimationState::Death && other->GetTag() == Tag::Defult && m.collisionDirection == CollisionDirection::Left || m.collisionDirection == CollisionDirection::Right)
 	{
-		other->owner->hitted = true;
-	}
+		owner->transform->setPosition(0.0f, 2000.0f);
+	}*/
 
 	
-
 }

@@ -60,6 +60,7 @@ std::vector<std::shared_ptr<Object>> STile::LoadMapTiles(const std::string& file
 		float height = 16.0f * tileScale;
 
 		collider->SetCollidable(sf::FloatRect(left, top, width, height));
+		collider->SetTag(Tag::Defult);
 		collider->SetLayer(CollisionLayer::Tile);
 
 		tileObjects.emplace_back(tileObject);

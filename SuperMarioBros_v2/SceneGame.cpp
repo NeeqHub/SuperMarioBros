@@ -169,7 +169,7 @@ void SceneGame::CreateEnemy()
 	std::shared_ptr<Object> enemy3 = std::make_shared<Object>(&context);
 	auto sprite3 = enemy3->addComponent<CSprite>();
 	auto collider3 = enemy3->addComponent<CBoxCollider>();
-	collider3->SetTag(Tag::Enemy);
+	collider3->SetTag(Tag::EnemyTurtle);
 	auto velocity3 = enemy3->addComponent<C_Velocity>();
 	auto enemyMovement3 = enemy3->addComponent<EnemyTurtleMovement>();
 	enemy3->addComponent<EnemyTurtleAnim>();

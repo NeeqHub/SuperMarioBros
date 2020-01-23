@@ -263,7 +263,8 @@ enum Tag
 {
 	Defult,
 	Player,
-	Enemy
+	Enemy,
+	EnemyTurtle
 };
 
 class CBoxCollider : public CCollider
@@ -491,6 +492,7 @@ class OutputColliders : public Component, public C_Collidable
 {
 public:
 	OutputColliders(Object* owner);
+	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)override;
 	void OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)override;
 	void OnCollisionExit(std::shared_ptr<CBoxCollider> other)override;
 };
