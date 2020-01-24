@@ -66,7 +66,7 @@ void CSprite::SetTextureRect(const sf::IntRect& rect)
 
 void CSprite::SetScale(unsigned int x, unsigned int y)
 {
-	sprite.setScale(x,y);
+	sprite.setScale(x, y);
 }
 
 Animation::Animation(FaceDirection direction) : frames(0), currentFrameIndex(0), currentFrameTime(0.0f), direction(direction) {}
@@ -284,14 +284,13 @@ void CKeyboardMovement::setMovementSpeed(float moveSpeed)
 void CKeyboardMovement::Update(float deltaTime)
 {
 	sf::Vector2f acc(0.0f, 0.0f);
-	sf::Vector2f vel(0.0f, 0.0f); 
+	sf::Vector2f vel(0.0f, 0.0f);
 
 	acc.y = velocity->acceleration.y;
-
 	//std::cout << "Mario velocity.x: " << velocity->Get().x << std::endl;
 	//std::cout << "Mario velocity.y: " << velocity->Get().y << std::endl;
 	//std::cout << std::endl;
-	
+
 	//std::cout << owner->transform->canJump << std::endl;
 
 	if (currentTime >= 5.0f)
@@ -302,12 +301,14 @@ void CKeyboardMovement::Update(float deltaTime)
 	// Death animation...
 	if (owner->disableInput == true)
 	{
+		
+
 		currentTime += deltaTime;
 
-		if(currentTime <= 0.5f)
-		velocity->SetAcc(0.0f, -250.0f);
+		if (currentTime <= 0.5f)
+			velocity->SetAcc(0.0f, -250.0f);
 		else
-		velocity->SetAcc(0.0f, 50.0f);
+			velocity->SetAcc(0.0f, 50.0f);
 
 		velocity->Set(0.0f, 0.0f);
 		return;
@@ -329,7 +330,7 @@ void CKeyboardMovement::Update(float deltaTime)
 		acc.y = jumpAccel;
 		velocity->SetAcc(acc.x, acc.y);
 	}
-	else if(owner->transform->canJump == true)
+	else if (owner->transform->canJump == true)
 	{
 		vel.y = 0.2f;
 		velocity->Set(velocity->Get().x, vel.y);
@@ -471,7 +472,7 @@ Manifold CBoxCollider::Intersects(std::shared_ptr<CCollider> other)
 		{
 			float xDiff = (rect1.left + (rect1.width * 0.5f)) - (rect2.left + (rect2.width * 0.5f)); // 3
 			float yDiff = (rect1.top + (rect1.height * 0.5f)) - (rect2.top + (rect2.height * 0.5f));
-		
+
 			if (fabs(xDiff) > fabs(yDiff)) // 4
 			{
 				if (xDiff > 0)
@@ -585,7 +586,7 @@ unsigned int C_InstanceID::Get()
 	return id;
 }
 
-Quadtree::Quadtree() : Quadtree(5, 5, 0, { 0.f, 0.f, 1920*5, 1080 },
+Quadtree::Quadtree() : Quadtree(5, 5, 0, { 0.f, 0.f, 1920 * 5, 1080 },
 	nullptr) {}
 
 Quadtree::Quadtree(int maxObjects, int maxLevels, int level,
@@ -1025,9 +1026,9 @@ C_Velocity::C_Velocity(Object* owner) :
 	Component(owner), velocity(0.0f, 0.0f), acceleration(0.0f, 0.0f), maxVelocity(8.f, 8.f), currentTime(0.0f) { }
 
 void C_Velocity::Update(float deltaTime)
-{	
-	if(owner->getComponent<C_InstanceID>()->Get() == 478)
-	velocity.x *= 0.975f;
+{
+	if (owner->getComponent<C_InstanceID>()->Get() == 478)
+		velocity.x *= 0.975f;
 
 	velocity.x += acceleration.x * deltaTime;
 
@@ -1142,7 +1143,7 @@ void C_MovementAnimation::Update(float deltaTime)
 			{
 				animation->SetAnimationDirection(FaceDirection::Right);
 			}
-	
+
 		}
 		else if (owner->transform->canJump == false)
 		{
@@ -1181,7 +1182,7 @@ void OutputColliders::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 
 void OutputColliders::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
-	if(m.collisionDirection == CollisionDirection::Top)
+	if (m.collisionDirection == CollisionDirection::Top)
 		owner->transform->canJump = true;
 	else if (m.collisionDirection == CollisionDirection::Bottom || m.collisionDirection == CollisionDirection::Right
 		|| m.collisionDirection == CollisionDirection::Left)
@@ -1201,62 +1202,60 @@ EnemyMovement::EnemyMovement(Object * owner) : Component(owner), enemyMovementSp
 void EnemyMovement::Awake()
 {
 	velocity = owner->getComponent<C_Velocity>();
-	
+
 }
 
 void EnemyMovement::Update(float deltaTime)
 {
-		if (owner->hitted == false)
+	if (owner->hitted == false)
+	{
+		if (owner->instanceID->Get() == 479)
 		{
-			if (owner->instanceID->Get() == 479)
-			{
-				if (owner->transform->getPosition().x <= 31.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-
-				if (owner->transform->getPosition().x >= 38.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-			}
-
-			if (owner->instanceID->Get() == 480)
-			{
-				if (owner->transform->getPosition().x <= 41.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-
-				if (owner->transform->getPosition().x >= 48.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-			}
-
-			if (owner->instanceID->Get() == 481)
-			{
-				if (owner->transform->getPosition().x <= 90.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-
-				if (owner->transform->getPosition().x >= 93.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-			}
-
-			if (owner->instanceID->Get() == 484)
-			{
-				if (owner->transform->getPosition().x <= 106.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-
-				if (owner->transform->getPosition().x >= 112.0f * 48.0f)
-					enemyMovementSpeed = -enemyMovementSpeed;
-			}
-
-			velocity->SetAcc(enemyMovementSpeed, 0.0f);
-			velocity->Set(0.0f, 0.0f);
-			
+			if (owner->transform->getPosition().x <= 31.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
+			else if (owner->transform->getPosition().x >= 38.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
 		}
-		else
+
+		if (owner->instanceID->Get() == 480)
 		{
-			velocity->SetAcc(0.0f, 0.0f);
-			velocity->Set(0.0f, 0.0f);
-			deathTime += deltaTime;
+			if (owner->transform->getPosition().x <= 41.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
+			else if (owner->transform->getPosition().x >= 48.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
 
-			if (deathTime > 0.25f)
-				owner->transform->setPosition(0.0f, 2000.0f);
 		}
+
+		if (owner->instanceID->Get() == 481)
+		{
+			if (owner->transform->getPosition().x <= 117.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
+			else if (owner->transform->getPosition().x >= 125.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
+
+		}
+
+		if (owner->instanceID->Get() == 484)
+		{
+			if (owner->transform->getPosition().x <= 108.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
+			else if (owner->transform->getPosition().x >= 115.0f * 48.0f)
+				enemyMovementSpeed = enemyMovementSpeed * (-1);
+		}
+
+		velocity->SetAcc(enemyMovementSpeed, 0.0f);
+		velocity->Set(0.0f, 0.0f);
+
+	}
+	else
+	{
+		velocity->SetAcc(0.0f, 0.0f);
+		velocity->Set(0.0f, 0.0f);
+		deathTime += deltaTime;
+
+		if (deathTime > 0.25f)
+			owner->transform->setPosition(0.0f, 2000.0f);
+	}
 }
 
 EnemyAnim::EnemyAnim(Object * owner) : Component(owner)
@@ -1297,7 +1296,7 @@ void EnemyTurtleMovement::Awake()
 
 void EnemyTurtleMovement::Update(float deltaTime)
 {
-	//std::cout << velocity->Get().x << std::endl;
+	//std::cout << owner->instanceID << ":" << velocity->Get().x << std::endl;
 
 	if (owner->isPushedLeft == true)
 	{
@@ -1310,9 +1309,9 @@ void EnemyTurtleMovement::Update(float deltaTime)
 		return;
 	}
 
-	if (owner->hitted == false)
+	if (owner->instanceID->Get() == 482)
 	{
-		if (owner->instanceID->Get() == 482)
+		if (owner->hitted == false)
 		{
 			if (owner->transform->getPosition().x <= 95.0f * 48.0f)
 				velocity->Set(enemyMovementSpeed, 0.0f);
@@ -1320,23 +1319,27 @@ void EnemyTurtleMovement::Update(float deltaTime)
 			if (owner->transform->getPosition().x >= 105.0f * 48.0f)
 				velocity->Set(-enemyMovementSpeed, 0.0f);
 		}
-		else if(owner->instanceID->Get() == 483)
-		{
-			if (owner->transform->getPosition().x <= 51.0f * 48.0f)
-				velocity->Set(enemyMovementSpeed, 0.0f);
-
-			if (owner->transform->getPosition().x >= 58.0f * 48.0f)
-				velocity->Set(-enemyMovementSpeed, 0.0f);
-		}
 			
 	}
-	else if(owner->isPushedLeft == false && owner->isPushedRight == false)
+	else if (owner->instanceID->Get() == 483)
+	{
+		if (owner->hitted == false)
+		{
+			if (owner->transform->getPosition().x <= 51.0f * 48.0f)
+					velocity->Set(enemyMovementSpeed, 0.0f);
+
+			if (owner->transform->getPosition().x >= 58.0f * 48.0f)
+					velocity->Set(-enemyMovementSpeed, 0.0f);
+		}		
+	}
+
+	if (owner->isPushedLeft == false && owner->isPushedRight == false && owner->hitted == true)
 	{
 		velocity->SetAcc(0.0f, 0.0f);
 		velocity->Set(0.0f, 0.0f);
 	}
 }
-
+	
 void EnemyTurtleMovement::OnCollisionStay(std::shared_ptr<CBoxCollider> other, Manifold m)
 {
 	owner->transform->canJump = true;
@@ -1365,7 +1368,7 @@ void EnemyTurtleAnim::Update(float deltaTime)
 		animation->SetAnimationDirection(FaceDirection::Left);
 	else if (currentVelocity.x < 0.0f)
 		animation->SetAnimationDirection(FaceDirection::Right);
-	
+
 }
 
 void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m)
@@ -1378,10 +1381,10 @@ void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 
 	switch (objectTag)
 	{
-	case Tag::Player: 
+	case Tag::Player:
 		switch (collisionDir)
 		{
-		case CollisionDirection::Top: 
+		case CollisionDirection::Top:
 			animation->SetAnimationState(AnimationState::Death);
 			owner->hitted = true;
 			break;
@@ -1408,32 +1411,32 @@ void EnemyTurtleAnim::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 			}
 			break;
 		}
-	break;
+		break;
 
 	case Tag::Enemy:
 		other->owner->transform->setPosition(0.0f, 2000.0f);
-	break;
+		break;
 
 	case Tag::Defult:
 		switch (collisionDir)
 		{
-		case CollisionDirection::Left: 
+		case CollisionDirection::Left:
 			if (owner->hitted == true)
 			{
 				owner->transform->setPosition(0.0f, 2000.0f);
 			}
 			break;
 
-		case CollisionDirection::Right: 
+		case CollisionDirection::Right:
 			if (owner->hitted == true)
 			{
 				owner->transform->setPosition(0.0f, 2000.0f);
 			}
 			break;
 		}
-	break;
+		break;
 	}
-	
+
 }
 
 BlocksAnim::BlocksAnim(Object * owner) : Component(owner), currentTime(0.0f)
@@ -1446,12 +1449,12 @@ void BlocksAnim::Update(float deltaTime)
 	{
 		currentTime += deltaTime;
 		owner->transform->setY(currentY - 10.0f);
-		
+
 		if (currentTime >= 0.3f)
 		{
 			owner->transform->setY(currentY);
 			owner->hitted = false;
-		}		
+		}
 	}
 }
 
@@ -1464,8 +1467,8 @@ void BlocksAnim::OnDestory()
 
 	if (owner->getComponent<CBoxCollider>()->GetTag() == Tag::Brick)
 	{
-		//owner->getComponent<CAnimation>()->SetAnimationState(AnimationState::Death);
 		owner->hitted = true;
 		currentY = owner->transform->getPosition().y;
 	}
 }
+

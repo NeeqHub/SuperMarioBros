@@ -24,7 +24,7 @@ std::vector<std::shared_ptr<Object>> STile::LoadMapTiles(const std::string& file
 		auto sprite = tileObject->addComponent<CSprite>();
 		auto collider = tileObject->addComponent<CBoxCollider>();
 		tileObject->addComponent<BlocksAnim>();
-		auto animation = tileObject->addComponent<CAnimation>();
+		//auto animation = tileObject->addComponent<CAnimation>();
 		sprite->Load(context.workingDir->Get() + "map_tiles.png");
 
 		// 0 ground
@@ -38,16 +38,6 @@ std::vector<std::shared_ptr<Object>> STile::LoadMapTiles(const std::string& file
 		// 8 bottom-left pipe
 		// 9 bottom-right pipe
 		
-		/*if (tile.tileID == 1)
-		{
-			std::shared_ptr<Animation> deathAnimationBrick = std::make_shared<Animation>(FaceDirection::Right);
-			deathAnimationBrick->AddFrame(8, 0, 48, 16, 16, 0.2f);
-			deathAnimationBrick->AddFrame(8, 16, 48, 16, 16, 0.2f);
-			deathAnimationBrick->AddFrame(8, 32, 48, 16, 16, 0.2f);
-
-			animation->AddAnimation(AnimationState::Death, deathAnimationBrick);
-		}*/
-
 		switch (tile.tileID)
 		{
 		case 0: sprite->SetTextureRect(0, 0, 16, 16); collider->SetTag(Tag::Defult); break;

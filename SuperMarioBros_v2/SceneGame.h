@@ -34,6 +34,6 @@ private:
 	ResourceManager<sf::Texture>& textureAllocator;
 	STile tileSystem;
 	Window& window;
-	
+
 };
 

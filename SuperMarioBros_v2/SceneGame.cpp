@@ -1,5 +1,5 @@
 #include "SceneGame.h"
-
+#include "SFML/Audio.hpp"
 
 SceneGame::SceneGame(WorkingDirectory& workingDir,
 	ResourceManager<sf::Texture>& textureAllocator,
@@ -26,7 +26,7 @@ void SceneGame::onCreate()
 	objects.add(levelBackgroundTiles);
 	objects.add(levelTiles);
 	CreatePlayer();
-	CreateEnemy();
+	CreateEnemy(); 
 }
 
 void SceneGame::onDestroy()
@@ -87,7 +87,6 @@ void SceneGame::CreatePlayer()
 	auto animation = mario->addComponent<CAnimation>();
 
 	int marioTextureID = textureAllocator.add(workingDir.Get() + "mario.png");
-	int brickAnimTextureID = textureAllocator.add(workingDir.Get() + "brickDestroy.png");
 
 	const int frameWidth = 16;
 	const int frameHeight = 16;
@@ -207,9 +206,9 @@ void SceneGame::CreateEnemy()
 	enemy1->transform->setPosition(31.0f * 48.0f, 500.0f);
 	enemy2->transform->setPosition(41.0f * 48.0f, 500.0f);
 	enemy3->transform->setPosition(95.0f * 48.0f, 500.0f);
-	enemy4->transform->setPosition(90.0f * 48.0f, 500.0f);
+	enemy4->transform->setPosition(120.0f * 48.0f, 500.0f);
 	enemy5->transform->setPosition(51.0f * 48.0f, 500.0f);
-	enemy6->transform->setPosition(106.0f * 48.0f, 500.0f);
+	enemy6->transform->setPosition(108.0f * 48.0f, 500.0f);
 
 	// Animations setups **************************************************************************************************
 
@@ -307,5 +306,4 @@ void SceneGame::CreateEnemy()
 	objects.add(enemy5);
 	objects.add(enemy6);
 }
-
 

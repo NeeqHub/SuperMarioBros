@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "SceneStateMachine.h"
+#include "SFML/Audio.hpp"
 
 class Object;
 
@@ -561,5 +562,6 @@ private:
 	float currentTime;
 	float currentY;
 };
+
 
 
