@@ -1,8 +1,5 @@
-**/Debug
-**/Release
-**/Resources
+SuperMarioBros_v2/Debug
 *.vs
-*.sln
-*.vcxproj
-*.filters
-*.user
+*.git
+
+
