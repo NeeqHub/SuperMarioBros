@@ -6,13 +6,13 @@ int main()
 {
 	Game game;
 
-	sf::Music soundtrack;
+	/*sf::Music soundtrack;
 	if (!(soundtrack.openFromFile("../Resources/sound.ogg")))
 	{
 		std::cout << "Sound error.";
-	}
+	}*/
 	
-	soundtrack.play();
+	//soundtrack.play();
 
 	while (game.isRunning())
 	{
