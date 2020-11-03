@@ -9,8 +9,10 @@
 #include <unordered_set>
 #include "SceneStateMachine.h"
 #include "SFML/Audio.hpp"
+#include "Animation.h"
 
 class Object;
+class CAnimation;
 
 struct EnumClassHash
 {
@@ -38,93 +40,10 @@ protected:
 	
 };
 
-class CTransform : public Component
-{
-public:
-	CTransform(Object* owner);
-	~CTransform() {}
-
-	float speed = 100.0f;
-	bool faceRight = true;
-	bool canJump = true;
-	float jumpHeight = 50.0f;
-
-	void setPosition(float x, float y);
-	void setPosition(sf::Vector2f pos);
-
-	void addPosition(float x, float y);
-	void addPosition(sf::Vector2f pos);
-
-	void setX(float x);
-	void setY(float y);
-
-	void addX(float x);
-	void addY(float y);
-
-	sf::Vector2f velocity;
-	const sf::Vector2f& getPosition() const;
-	void SetStatic(bool isStatic);
-	bool isStatic() const;
-
-private:
-	sf::Vector2f position;
-	
-	bool isStaticTransform;
-};
-
 namespace tex
 {
 	enum ID { Mario, Blocks, Enemy, Powerups };
 }
-
-struct FrameData
-{
-	int id;
-	int x;
-	int y;
-	int height;
-	int width;
-	float displayTimeSeconds;
-};
-
-enum class AnimationState
-{
-	None,
-	Idle,
-	Walk,
-	Jump,
-	Death,
-	Projectile
-};
-
-enum class FaceDirection
-{
-	None,
-	Right,
-	Left
-};
-
-class Animation
-{
-public:
-	Animation(FaceDirection direction);
-
-	void AddFrame(int id, int x, int y, int height, int width, float frameTime);
-	const FrameData* GetCurrentFrame() const;
-	bool UpdateFrame(float deltaTime);
-	void Reset();
-
-	void SetDirection(FaceDirection direction);
-	FaceDirection GetDirection() const;
-
-private:
-	void IncrementFrame();
-	std::vector<FrameData> frames;
-	int currentFrameIndex;
-	float currentFrameTime;
-	FaceDirection direction;
-
-};
 
 class CDrawable
 {
@@ -154,73 +73,9 @@ private:
 	std::vector<std::shared_ptr<Object>> drawables;
 };
 
-class CSprite : public Component, public CDrawable
-{
-public:
-	CSprite(Object* owner);
-	void Load(const std::string& filePath);
-	void Load(int id);
-	void LateUpdate(float deltaTime) override;
-	void Draw(Window& window);
-	void SetTextureRect(int x, int y, int width, int height);
-	void SetTextureRect(const sf::IntRect& rect);
-	void SetScale(unsigned int x, unsigned int y);
-
-private:
-	//ResourceManager<sf::Texture>* allocator;
-	sf::Sprite sprite;
-	int currentTextureID;
-};
-
-class CAnimation : public Component
-{
-public:
-
-	CAnimation(Object* owner);
-
-	void Awake() override;
-	void Update(float deltaTime);
-	void AddAnimation(AnimationState state, std::shared_ptr<Animation> animation);
-	void SetAnimationState(AnimationState state);
-	void SetAnimationDirection(FaceDirection direction);
-	const AnimationState& GetAnimationState() const;
-
-private:
-	std::shared_ptr<CSprite> sprite;
-	std::map<AnimationState, std::shared_ptr<Animation>> animations;
-	std::pair<AnimationState, std::shared_ptr<Animation>> currentAnimation;
-};
-
 class C_Velocity;
 
-class CKeyboardMovement : public Component
-{
-public:
-	CKeyboardMovement(Object* owner);
 
-	void Awake() override;
-	void setMovementSpeed(float moveSpeed);
-
-	void Update(float deltaTIme) override;
-
-private:
-	float moveSpeed;
-	std::shared_ptr<CAnimation> animation;
-	std::shared_ptr<C_Velocity> velocity;
-	SceneStateMachine sceneStateMachine;
-
-	const float GRAVITY = 9.81f;
-	const float MAX_VELOCITY = -10.0f;
-	const float MAX_AIR_TIME = 1.2f;
-
-	float timeInAir = 0.0f;
-	float jumpImpulseTime = 2.0f;
-	float jumpImpulseVel = -10.0f;
-	float jumpAccel = -500.0f;
-
-	float totalTimeInAir;
-	float currentTime;
-};
 
 enum class CollisionLayer
 {

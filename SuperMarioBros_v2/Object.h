@@ -2,6 +2,7 @@
 #include <vector>
 #include "Window.h"
 #include "Component.h"
+#include "CTransform.h"
 
 class Object
 {

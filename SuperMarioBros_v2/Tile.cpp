@@ -1,4 +1,5 @@
 #include "Tile.h"
+#include "CSprite.h"
 
 STile::STile(ResourceManager<sf::Texture>& textureAllocator,
 	SharedContext& context) : textureAllocator(textureAllocator), context(context)

@@ -131,10 +131,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Bitmask.cpp" />
+    <ClCompile Include="CAnimation.cpp" />
     <ClCompile Include="Component.cpp" />
+    <ClCompile Include="CSprite.cpp" />
+    <ClCompile Include="CTransform.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
+    <ClCompile Include="CKeyboardMovement.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectCollection.cpp" />
@@ -148,10 +153,15 @@
     <ClCompile Include="WorkingDirectory.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Bitmask.h" />
+    <ClInclude Include="CAnimation.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="CSprite.h" />
+    <ClInclude Include="CTransform.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
+    <ClInclude Include="CKeyboardMovement.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectCollection.h" />
     <ClInclude Include="ResourceManager.h" />
