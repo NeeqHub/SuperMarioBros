@@ -3,6 +3,8 @@
 #include "Component.h"
 #include "CSprite.h"
 
+class Object;
+
 class CAnimation : public Component
 {
 public:

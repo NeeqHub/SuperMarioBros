@@ -3,6 +3,8 @@
 #include "Window.h"
 #include "Component.h"
 #include "CTransform.h"
+#include "CCollider.h"
+#include "CAnimation.h"
 
 class Object
 {

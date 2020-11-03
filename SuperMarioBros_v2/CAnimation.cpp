@@ -1,6 +1,5 @@
 #include "CAnimation.h"
 #include "Object.h"
-#include "Component.h"
 
 CAnimation::CAnimation(Object* owner) : Component(owner), currentAnimation(AnimationState::None, nullptr)
 {
