@@ -1,5 +1,6 @@
 #pragma once
 #include "Component.h"
+#include "CVelocity.h"
 
 class Object;
 
@@ -16,7 +17,7 @@ public:
 private:
 	float moveSpeed;
 	std::shared_ptr<CAnimation> animation;
-	std::shared_ptr<C_Velocity> velocity;
+	std::shared_ptr<CVelocity> velocity;
 	SceneStateMachine sceneStateMachine;
 
 	const float GRAVITY = 9.81f;

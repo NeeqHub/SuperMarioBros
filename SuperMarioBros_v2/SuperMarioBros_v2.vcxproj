@@ -134,9 +134,12 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Bitmask.cpp" />
     <ClCompile Include="CAnimation.cpp" />
+    <ClCompile Include="CCamera.cpp" />
+    <ClCompile Include="CMovementAnimation.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CSprite.cpp" />
     <ClCompile Include="CTransform.cpp" />
+    <ClCompile Include="CVelocity.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="CKeyboardMovement.cpp" />
@@ -156,9 +159,12 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Bitmask.h" />
     <ClInclude Include="CAnimation.h" />
+    <ClInclude Include="CCamera.h" />
+    <ClInclude Include="CMovementAnimation.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="CSprite.h" />
     <ClInclude Include="CTransform.h" />
+    <ClInclude Include="CVelocity.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="CKeyboardMovement.h" />

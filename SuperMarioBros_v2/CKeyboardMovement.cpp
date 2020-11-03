@@ -6,7 +6,7 @@ CKeyboardMovement::CKeyboardMovement(Object* owner)
 
 void CKeyboardMovement::Awake()
 {
-	velocity = owner->getComponent<C_Velocity>();
+	velocity = owner->getComponent<CVelocity>();
 }
 
 void CKeyboardMovement::setMovementSpeed(float moveSpeed)

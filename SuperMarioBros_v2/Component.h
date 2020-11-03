@@ -13,6 +13,7 @@
 
 class Object;
 class CAnimation;
+class CVelocity;
 
 struct EnumClassHash
 {
@@ -73,7 +74,7 @@ private:
 	std::vector<std::shared_ptr<Object>> drawables;
 };
 
-class C_Velocity;
+class CVelocity;
 
 
 
@@ -268,18 +269,7 @@ private:
 	Quadtree collisionTree;
 };
 
-class C_Camera : public Component
-{
-public:
-	C_Camera(Object* owner);
 
-	void LateUpdate(float deltaTime) override;
-
-	void SetWindow(Window* gameWindow);
-
-private:
-	Window* window;
-};
 
 class C_Collidable
 {
@@ -296,44 +286,6 @@ public:
 	C_RemoveObjectOnCollisionEnter(Object* owner);
 
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other) override;
-};
-
-class C_Velocity : public Component
-{
-public:
-	C_Velocity(Object* owner);
-
-	void Update(float deltaTime) override;
-
-	void Set(const sf::Vector2f& vel);
-	void Set(float x, float y);
-	void SetAcc(float x, float y);
-
-	const sf::Vector2f& Get() const;
-	const float& GetX() const;
-	const float& GetY() const;
-	
-	sf::Vector2f velocity;
-	sf::Vector2f acceleration;
-private:
-	
-	void ClampVelocity();
-	sf::Vector2f maxVelocity;
-	float currentTime;
-};
-
-class C_MovementAnimation : public Component
-{
-public:
-	C_MovementAnimation(Object* owner);
-
-	void Awake() override;
-
-	void Update(float deltaTime) override;
-
-private:
-	std::shared_ptr<C_Velocity> velocity;
-	std::shared_ptr<CAnimation> animation;
 };
 
 class ObjectCollection;
@@ -364,7 +316,7 @@ public:
 	void Update(float deltaTime);
 
 private:
-	std::shared_ptr<C_Velocity> velocity;
+	std::shared_ptr<CVelocity> velocity;
 	float enemyMovementSpeed;
 	float deathTime;
 };
@@ -379,7 +331,7 @@ public:
 	void OnCollisionExit(std::shared_ptr<CBoxCollider> other)override;
 
 private:
-	std::shared_ptr<C_Velocity> velocity;
+	std::shared_ptr<CVelocity> velocity;
 	float enemyMovementSpeed;
 	float deathTime;
 };
@@ -404,7 +356,7 @@ public:
 	void OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Manifold m) override;
 private:
 	std::shared_ptr<CAnimation> animation;
-	std::shared_ptr<C_Velocity> velocity;
+	std::shared_ptr<CVelocity> velocity;
 };
 
 class BlocksAnim : public Component
