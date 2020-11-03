@@ -54,7 +54,7 @@ void Window::Draw(const sf::Vertex* vertices,
 	window.draw(vertices, vertexCount, type);
 }
 
-std::vector<sf::RectangleShape> Debug::rects = {};
+/*std::vector<sf::RectangleShape> Debug::rects = {};
 std::vector<std::array<sf::Vertex, 2>> Debug::lines = {};
 
 void Debug::Draw(Window& window)

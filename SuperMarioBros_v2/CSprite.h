@@ -1,6 +1,7 @@
 #pragma once
 #include "Component.h"
 #include "CTransform.h"
+#include "CDrawable.h"
 
 class CSprite : public Component, public CDrawable
 {

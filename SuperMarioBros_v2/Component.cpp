@@ -5,78 +5,7 @@
 #include "CVelocity.h"
 #include "CCollider.h"
 
-CDrawable::CDrawable() : sortOrder(0) {}
 
-CDrawable::~CDrawable() {}
-
-void CDrawable::Draw(Window & window)
-{
-}
-
-void CDrawable::SetSortOrder(int order)
-{
-	sortOrder = order;
-}
-
-int CDrawable::GetSortOrder() const
-{
-	return sortOrder;
-}
-
-void SDrawable::Add(std::vector<std::shared_ptr<Object>>& objects)
-{
-	for (auto o : objects)
-	{
-		Add(o);
-	}
-
-	Sort();
-}
-
-void SDrawable::Add(std::shared_ptr<Object> object)
-{
-	std::shared_ptr<CDrawable> draw = object->GetDrawable();
-
-	if (draw)
-	{
-		drawables.emplace_back(object);
-	}
-}
-
-void SDrawable::Sort()
-{
-	std::sort(drawables.begin(), drawables.end(), [](std::shared_ptr<Object> a, std::shared_ptr<Object> b) -> bool
-	{
-		return a->GetDrawable()->GetSortOrder() < b->GetDrawable()->GetSortOrder();
-	}
-	);
-}
-
-void SDrawable::ProcessRemovals()
-{
-	auto objIterator = drawables.begin();
-	while (objIterator != drawables.end())
-	{
-		auto obj = *objIterator;
-
-		if (obj->IsQueuedForRemoval())
-		{
-			objIterator = drawables.erase(objIterator);
-		}
-		else
-		{
-			++objIterator;
-		}
-	}
-}
-
-void SDrawable::Draw(Window& window)
-{
-	for (auto& d : drawables)
-	{
-		d->Draw(window);
-	}
-}
 
 
 
@@ -91,7 +20,7 @@ unsigned int C_InstanceID::Get()
 	return id;
 }
 
-Quadtree::Quadtree() : Quadtree(5, 5, 0, { 0.f, 0.f, 1920 * 5, 1080 },
+Quadtree::Quadtree() : Quadtree(10, 10, 0, { 0.f, 0.f, 1920, 1080 },
 	nullptr) {}
 
 Quadtree::Quadtree(int maxObjects, int maxLevels, int level,
@@ -285,7 +214,7 @@ void Quadtree::Split()
 		this);
 }
 
-void Quadtree::DrawDebug()
+/*void Quadtree::DrawDebug()
 {
 	if (children[0] != nullptr)
 	{
@@ -296,7 +225,7 @@ void Quadtree::DrawDebug()
 	}
 
 	Debug::DrawRect(bounds, sf::Color::Red);
-}
+}*/
 
 S_Collidable::S_Collidable()
 {
@@ -360,7 +289,7 @@ void S_Collidable::ProcessRemovals()
 }
 void S_Collidable::Update()
 {
-	collisionTree.DrawDebug(); // New line.
+	//collisionTree.DrawDebug(); // New line.
 	ProcessCollidingObjects();
 
 	collisionTree.Clear();
@@ -456,8 +385,8 @@ void S_Collidable::Resolve()
 
 					if (m.colliding)
 					{
-						Debug::DrawRect(collision->GetCollidable(), sf::Color::Red);
-						Debug::DrawRect(collidable->GetCollidable(), sf::Color::Red);
+						//Debug::DrawRect(collision->GetCollidable(), sf::Color::Red);
+						//Debug::DrawRect(collidable->GetCollidable(), sf::Color::Red);
 
 						if (collision->owner->transform->isStatic())
 						{

@@ -60,7 +60,7 @@ void SceneGame::LateUpdate(float deltaTime)
 void SceneGame::Draw(Window& window)
 {
 	objects.Draw(window);
-	Debug::Draw(window);
+	//Debug::Draw(window);
 }
 
 void SceneGame::CreatePlayer()

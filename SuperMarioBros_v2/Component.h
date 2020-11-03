@@ -45,40 +45,6 @@ namespace tex
 	enum ID { Mario, Blocks, Enemy, Powerups };
 }
 
-class CDrawable
-{
-public:
-	CDrawable();
-	virtual ~CDrawable();
-
-	virtual void Draw(Window& window);
-	void SetSortOrder(int order);
-	int GetSortOrder() const;
-
-private:
-	int sortOrder;
-};
-
-class SDrawable
-{
-public:
-	void Add(std::vector<std::shared_ptr<Object>>& object);
-	void ProcessRemovals();
-	void Draw(Window& window);
-
-
-private:
-	void Add(std::shared_ptr<Object> object);
-	void Sort();
-	std::vector<std::shared_ptr<Object>> drawables;
-};
-
-class CVelocity;
-
-
-
-
-
 class C_InstanceID : public Component
 {
 public:
@@ -116,7 +82,7 @@ public:
 	const sf::FloatRect& GetBounds() const;
 
 	// To delete
-	void DrawDebug();
+	//void DrawDebug();
 private:
 	void Search(const sf::FloatRect& area,
 		std::vector<std::shared_ptr<CBoxCollider>>&

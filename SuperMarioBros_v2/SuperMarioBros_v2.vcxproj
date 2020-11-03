@@ -136,6 +136,7 @@
     <ClCompile Include="CAnimation.cpp" />
     <ClCompile Include="CCamera.cpp" />
     <ClCompile Include="CCollider.cpp" />
+    <ClCompile Include="CDrawable.cpp" />
     <ClCompile Include="CMovementAnimation.cpp" />
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="CSprite.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CCamera.h" />
     <ClInclude Include="CCollider.h" />
+    <ClInclude Include="CDrawable.h" />
     <ClInclude Include="CMovementAnimation.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Component.h" />

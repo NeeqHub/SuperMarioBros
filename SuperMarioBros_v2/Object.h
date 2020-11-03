@@ -5,6 +5,7 @@
 #include "CTransform.h"
 #include "CCollider.h"
 #include "CAnimation.h"
+#include "CDrawable.h"
 
 class Object
 {
