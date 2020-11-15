@@ -26,6 +26,9 @@ void Input::update()
 
 	thisFrameKeys.setBit((int)Key::Esc),
 		sf::Keyboard::isKeyPressed(sf::Keyboard::Escape);
+
+	thisFrameKeys.setBit((int)Key::Shift,
+		(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) );
 }
 
 bool Input::isKeyPressed(Key keycode)
