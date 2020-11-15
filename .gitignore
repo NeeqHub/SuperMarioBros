@@ -1,5 +1,6 @@
 SuperMarioBros_v2/Debug
 *.vs
 *.git
-
+*.sln
+*.vcxproj
 
