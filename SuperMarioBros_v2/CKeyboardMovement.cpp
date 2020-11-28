@@ -47,6 +47,18 @@ void CKeyboardMovement::Update(float deltaTime)
 		return;
 	}
 
+	if (owner->context->input->isKeyPressed(Input::Key::Down))
+	{
+		acc.x = 0;
+		velocity->SetAcc(acc.x, acc.y);
+	}
+
+	if (owner->context->input->isKeyUp(Input::Key::Left) || owner->context->input->isKeyUp(Input::Key::Right))
+	{
+		acc.x = 0;
+		velocity->SetAcc(acc.x, acc.y);
+	}
+
 	if (owner->context->input->isKeyPressed(Input::Key::Left))
 	{
 		acc.x = -moveSpeed;
@@ -55,7 +67,8 @@ void CKeyboardMovement::Update(float deltaTime)
 		}
 		velocity->SetAcc(acc.x, acc.y);
 	}
-	else if (owner->context->input->isKeyPressed(Input::Key::Right))
+	
+	if (owner->context->input->isKeyPressed(Input::Key::Right))
 	{
 		acc.x = moveSpeed;
 		if (owner->context->input->isKeyPressed(Input::Key::Shift)) {
