@@ -103,7 +103,8 @@ void CBoxCollider::ResolveOverlap(const Manifold& m)
 		else // Colliding on the right.
 		{
 			// We add a negative x value to move the object to the left.
-			resolve = -((rect1.left + rect1.width) - rect2->left);
+			// hotfix, push player 10 units back, to change later
+			resolve = -((rect1.left + rect1.width) - rect2->left+10);
 		}
 
 		transform->addPosition(resolve, 0); // 5
