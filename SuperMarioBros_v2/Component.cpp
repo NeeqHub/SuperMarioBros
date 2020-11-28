@@ -385,18 +385,7 @@ void S_Collidable::Resolve()
 
 					if (m.colliding)
 					{
-						//Debug::DrawRect(collision->GetCollidable(), sf::Color::Red);
-						//Debug::DrawRect(collidable->GetCollidable(), sf::Color::Red);
-
-						if (collision->owner->transform->isStatic())
-						{
-							collidable->ResolveOverlap(m);
-						}
-						else
-						{
-							collidable->ResolveOverlap(m);
-						}
-
+						collidable->ResolveOverlap(m);
 						auto collisionPair = objectsColliding.emplace(std::make_pair(collidable, collision));
 
 						if (collisionPair.second)
@@ -428,7 +417,6 @@ void S_Collidable::Resolve()
 }
 
 
-
 C_RemoveObjectOnCollisionEnter::C_RemoveObjectOnCollisionEnter(Object* owner) : Component(owner) {}
 
 void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
@@ -436,9 +424,6 @@ void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollid
 	// Remove the projectile when it collides with any other object    
 	//owner->QueueForRemoval();
 }
-
-
-
 
 
 OutputColliders::OutputColliders(Object * owner) : Component(owner)
