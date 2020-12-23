@@ -1,50 +1,72 @@
 #include "Animation.h"
 
-Animation::Animation(sf::Texture* texture, sf::Vector2u imageCount, float switchTime)
+Animation::Animation(FaceDirection direction) : frames(0), currentFrameIndex(0), currentFrameTime(0.0f), direction(direction) {}
+
+void Animation::AddFrame(int textureID, int x, int y, int height, int width, float frameTime)
 {
-	this->imageCount = imageCount;
-	this->switchTime = switchTime;
-	totalTime = 0.0f;
+	FrameData data;
+	data.id = textureID;
+	data.x = x;
+	data.y = y;
+	data.height = height;
+	data.width = width;
+	data.displayTimeSeconds = frameTime;
 
-	currentImage.x = 0;
-	
-	uvRect.width = texture->getSize().x / float(imageCount.x);
-	uvRect.height = texture->getSize().y / float(imageCount.y);
-
+	frames.push_back(data);
 }
 
-Animation::~Animation()
+const FrameData* Animation::GetCurrentFrame() const
 {
-	
-}
-
-void Animation::Update(int row, float deltaTime, bool faceRight)
-{
-	currentImage.y = row;
-	totalTime += deltaTime;
-
-	if (totalTime >= switchTime)
+	if (frames.size() > 0)
 	{
-		totalTime -= switchTime;
-		currentImage.x++;
+		return &frames[currentFrameIndex];
+	}
 
-		if (currentImage.x >= imageCount.x)
+	return nullptr;
+}
+
+bool Animation::UpdateFrame(float deltaTime)
+{
+	if (frames.size() > 0)
+	{
+		currentFrameTime += deltaTime;
+
+		if (currentFrameTime >= frames[currentFrameIndex].displayTimeSeconds)
 		{
-			currentImage.x = 0;
+			currentFrameTime = 0.0f;
+			IncrementFrame();
+			return true;
 		}
 	}
 
-	uvRect.top = currentImage.y * uvRect.height;
+	return false;
+}
 
-	if (faceRight)
-	{
-		uvRect.left = currentImage.x * uvRect.width;
-		uvRect.width = abs(uvRect.width);
-	}
-	else
-	{
-		uvRect.left = (currentImage.x + 1) * abs(uvRect.width);
-		uvRect.width = -abs(uvRect.width);
-	}
+void Animation::IncrementFrame()
+{
+	currentFrameIndex = (currentFrameIndex + 1) % frames.size();
+}
 
+void Animation::Reset()
+{
+	currentFrameIndex = 0;
+	currentFrameTime = 0.0f;
+}
+
+void Animation::SetDirection(FaceDirection direction)
+{
+	if (direction != this->direction)
+	{
+		this->direction = direction;
+		for (auto& f : frames)
+		{
+			f.x += f.width;
+			f.width *= -1;
+		}
+	}
+}
+
+FaceDirection Animation::GetDirection() const
+{
+	return direction;
 }

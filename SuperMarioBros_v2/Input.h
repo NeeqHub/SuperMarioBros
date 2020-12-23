@@ -14,7 +14,8 @@ public:
 		Right = 2,
 		Up = 3,
 		Down = 4,
-		Esc = 5
+		Esc = 5,
+		Shift = 6
 	};
 	
 	bool isKeyPressed(Key keycode);

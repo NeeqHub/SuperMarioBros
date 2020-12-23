@@ -60,7 +60,7 @@ void SceneGame::LateUpdate(float deltaTime)
 void SceneGame::Draw(Window& window)
 {
 	objects.Draw(window);
-	Debug::Draw(window);
+	//Debug::Draw(window);
 }
 
 void SceneGame::CreatePlayer()
@@ -69,10 +69,10 @@ void SceneGame::CreatePlayer()
 	auto sprite = mario->addComponent<CSprite>();
 	auto collider = mario->addComponent<CBoxCollider>();
 	collider->SetTag(Tag::Player);
-	auto camera = mario->addComponent<C_Camera>();
+	auto camera = mario->addComponent<CCamera>();
 	mario->addComponent<OutputColliders>();
-	mario->addComponent<C_Velocity>();
-	mario->addComponent<C_MovementAnimation>();
+	mario->addComponent<CVelocity>();
+	mario->addComponent<CMovementAnimation>();
 	//mario->addComponent<KillEnemy>();
 	camera->SetWindow(&window);
 	sprite->Load(workingDir.Get() + "mario.png");
@@ -140,7 +140,7 @@ void SceneGame::CreateEnemy()
 	auto sprite = enemy1->addComponent<CSprite>();
 	auto collider = enemy1->addComponent<CBoxCollider>();
 	collider->SetTag(Tag::Enemy);
-	auto velocity = enemy1->addComponent<C_Velocity>();
+	auto velocity = enemy1->addComponent<CVelocity>();
 	auto enemyMovement = enemy1->addComponent<EnemyMovement>();
 	enemy1->addComponent<EnemyAnim>();
 	sprite->Load(workingDir.Get() + "mushroom.png");
@@ -150,7 +150,7 @@ void SceneGame::CreateEnemy()
 	auto sprite2 = enemy2->addComponent<CSprite>();
 	auto collider2 = enemy2->addComponent<CBoxCollider>();
 	collider2->SetTag(Tag::Enemy);
-	auto velocity2 = enemy2->addComponent<C_Velocity>();
+	auto velocity2 = enemy2->addComponent<CVelocity>();
 	auto enemyMovement2 = enemy2->addComponent<EnemyMovement>();
 	enemy2->addComponent<EnemyAnim>();
 	sprite2->Load(workingDir.Get() + "mushroom.png");
@@ -160,7 +160,7 @@ void SceneGame::CreateEnemy()
 	auto sprite4 = enemy4->addComponent<CSprite>();
 	auto collider4 = enemy4->addComponent<CBoxCollider>();
 	collider4->SetTag(Tag::Enemy);
-	auto velocity4 = enemy4->addComponent<C_Velocity>();
+	auto velocity4 = enemy4->addComponent<CVelocity>();
 	auto enemyMovement4 = enemy4->addComponent<EnemyMovement>();
 	enemy4->addComponent<EnemyAnim>();
 	sprite4->Load(workingDir.Get() + "mushroom.png");
@@ -170,7 +170,7 @@ void SceneGame::CreateEnemy()
 	auto sprite3 = enemy3->addComponent<CSprite>();
 	auto collider3 = enemy3->addComponent<CBoxCollider>();
 	collider3->SetTag(Tag::EnemyTurtle);
-	auto velocity3 = enemy3->addComponent<C_Velocity>();
+	auto velocity3 = enemy3->addComponent<CVelocity>();
 	auto enemyMovement3 = enemy3->addComponent<EnemyTurtleMovement>();
 	enemy3->addComponent<EnemyTurtleAnim>();
 	sprite3->Load(workingDir.Get() + "turtle.png");
@@ -180,7 +180,7 @@ void SceneGame::CreateEnemy()
 	auto sprite5 = enemy5->addComponent<CSprite>();
 	auto collider5 = enemy5->addComponent<CBoxCollider>();
 	collider5->SetTag(Tag::EnemyTurtle);
-	auto velocity5 = enemy5->addComponent<C_Velocity>();
+	auto velocity5 = enemy5->addComponent<CVelocity>();
 	auto enemyMovement5 = enemy5->addComponent<EnemyTurtleMovement>();
 	enemy5->addComponent<EnemyTurtleAnim>();
 	sprite5->Load(workingDir.Get() + "turtle.png");
@@ -190,7 +190,7 @@ void SceneGame::CreateEnemy()
 	auto sprite6 = enemy6->addComponent<CSprite>();
 	auto collider6 = enemy6->addComponent<CBoxCollider>();
 	collider6->SetTag(Tag::Enemy);
-	auto velocity6 = enemy6->addComponent<C_Velocity>();
+	auto velocity6 = enemy6->addComponent<CVelocity>();
 	auto enemyMovement6 = enemy6->addComponent<EnemyMovement>();
 	enemy6->addComponent<EnemyAnim>();
 	sprite6->Load(workingDir.Get() + "mushroom.png");

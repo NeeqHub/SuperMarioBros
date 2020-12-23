@@ -7,6 +7,12 @@
 #include "ObjectCollection.h"
 #include "ResourceManager.h"
 #include "Tile.h"
+#include "CSprite.h"
+#include "CKeyboardMovement.h"
+#include "CAnimation.h"
+#include "CCamera.h"
+#include "CVelocity.h"
+#include "CMovementAnimation.h"
 
 class SceneGame : public Scene
 {

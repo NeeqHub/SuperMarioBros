@@ -1,22 +1,53 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
+struct FrameData
+{
+	int id;
+	int x;
+	int y;
+	int height;
+	int width;
+	float displayTimeSeconds;
+};
+
+enum class AnimationState
+{
+	None,
+	Idle,
+	Walk,
+	Jump,
+	Death,
+	Projectile
+};
+
+enum class FaceDirection
+{
+	None,
+	Right,
+	Left
+};
+
 class Animation
 {
 public:
-	Animation(sf::Texture* texture, sf::Vector2u imageCount, float switchTime);
-	~Animation();
+	Animation(FaceDirection direction);
 
-	void Update(int row, float deltaTime, bool faceRight);
+	void AddFrame(int id, int x, int y, int height, int width, float frameTime);
+	const FrameData* GetCurrentFrame() const;
+	bool UpdateFrame(float deltaTime);
+	void Reset();
 
-public:
-	sf::IntRect uvRect;
+	void SetDirection(FaceDirection direction);
+	FaceDirection GetDirection() const;
 
 private:
-	sf::Vector2u imageCount;
-	sf::Vector2u currentImage;
+	void IncrementFrame();
+	std::vector<FrameData> frames;
+	int currentFrameIndex;
+	float currentFrameTime;
+	FaceDirection direction;
 
-	float totalTime;
-	float switchTime;
 };
+
 

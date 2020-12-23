@@ -28,7 +28,7 @@ private:
 	sf::RenderWindow window;
 };
 
-class Debug
+/*class Debug
 {
 public:
 	static void Draw(Window& window);
@@ -47,4 +47,4 @@ public:
 private:
 	static std::vector<std::array<sf::Vertex, 2>> lines;
 	static std::vector<sf::RectangleShape> rects;
-};
+};*/
