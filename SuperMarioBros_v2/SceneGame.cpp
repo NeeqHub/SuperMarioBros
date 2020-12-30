@@ -25,7 +25,9 @@ void SceneGame::onCreate()
 
 	objects.add(levelBackgroundTiles);
 	objects.add(levelTiles);
-	CreatePlayer();
+	//CreatePlayer();
+	Mario* mario = new Mario(context,&objects);
+	mario->OnCreate();
 	CreateEnemy(); 
 }
 

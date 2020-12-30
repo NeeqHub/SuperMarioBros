@@ -4,6 +4,8 @@
 #include "CAnimation.h"
 #include "CVelocity.h"
 
+class Mario;
+
 class CMovementAnimation : public Component
 {
 public:
@@ -12,8 +14,10 @@ public:
 	void Awake() override;
 
 	void Update(float deltaTime) override;
+	void SetMarioState(Mario* mario);
 
 private:
 	std::shared_ptr<CVelocity> velocity;
 	std::shared_ptr<CAnimation> animation;
+	Mario* myMario;
 };

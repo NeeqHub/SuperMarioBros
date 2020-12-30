@@ -15,8 +15,11 @@ enum class AnimationState
 {
 	None,
 	Idle,
+	IdleBig,
 	Walk,
+	WalkBig,
 	Jump,
+	JumpBig,
 	Death,
 	Projectile
 };

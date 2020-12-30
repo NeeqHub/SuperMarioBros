@@ -1,4 +1,5 @@
 #include "CMovementAnimation.h"
+#include "Mario.h"
 
 CMovementAnimation::CMovementAnimation(Object* owner) : Component(owner) { }
 
@@ -22,7 +23,7 @@ void CMovementAnimation::Update(float deltaTime)
 		const sf::Vector2f& currentVel = velocity->Get();
 
 		if (owner->hitted == true)
-		{
+		{	
 			animation->SetAnimationState(AnimationState::Death);
 			owner->getComponent<CBoxCollider>()->SetSize(0.0f, 0.0f);
 			owner->disableInput = true;
@@ -31,7 +32,17 @@ void CMovementAnimation::Update(float deltaTime)
 
 		if (owner->transform->canJump == true && currentVel.x != 0.0f)
 		{
+			// 30.12.2021 update DL
+
+			//std::cout << myMario->GetMarioState() << std::endl;
+			if(myMario->GetMarioState() == MarioState::SmallMario)
 			animation->SetAnimationState(AnimationState::Walk);
+			else if (myMario->GetMarioState() == MarioState::BigMario)
+				animation->SetAnimationState(AnimationState::WalkBig);
+
+
+			//else if(myMario->GetMarioState() == myMario->BigMario)
+			//animation->SetAnimationState(AnimationState::WalkBig);
 
 			if (currentVel.x < 0)
 			{
@@ -57,4 +68,9 @@ void CMovementAnimation::Update(float deltaTime)
 			animation->SetAnimationState(AnimationState::Idle);
 		}
 	}
+}
+
+void CMovementAnimation::SetMarioState(Mario* mario)
+{
+	myMario = mario;
 }

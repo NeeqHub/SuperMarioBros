@@ -13,6 +13,7 @@
 #include "CCamera.h"
 #include "CVelocity.h"
 #include "CMovementAnimation.h"
+#include "Mario.h"
 
 class SceneGame : public Scene
 {
