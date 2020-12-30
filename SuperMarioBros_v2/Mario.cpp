@@ -110,15 +110,31 @@ void Mario::OnCreate()
 
 void Mario::Promote()
 {
+	if (marioState == MarioState::SmallMario)
+	{
+		marioState = MarioState::BigMario;
+		SetBigMarioCollider();
+	}
+	else if (marioState == MarioState::BigMario)
+		marioState = MarioState::FireMario;
 
 }
 
 void Mario::Demote()
 {
-
+	if (marioState == MarioState::FireMario)
+		marioState = MarioState::BigMario;
+	else if (marioState == MarioState::BigMario)
+		marioState = MarioState::SmallMario;
 }
 
-MarioState Mario::GetMarioState() const
+MarioState Mario::GetMarioState()
 {
 	return marioState;
+}
+
+void Mario::SetBigMarioCollider()
+{
+	auto collider = mario->getComponent<CBoxCollider>();
+	collider->SetCollidable(sf::FloatRect(0, 0, 48, 96));
 }

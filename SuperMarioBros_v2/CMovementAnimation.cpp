@@ -34,15 +34,14 @@ void CMovementAnimation::Update(float deltaTime)
 		{
 			// 30.12.2021 update DL
 
-			//std::cout << myMario->GetMarioState() << std::endl;
+			//std::cout << static_cast<int>(myMario->GetMarioState()) << std::endl;
+
 			if(myMario->GetMarioState() == MarioState::SmallMario)
 			animation->SetAnimationState(AnimationState::Walk);
 			else if (myMario->GetMarioState() == MarioState::BigMario)
 				animation->SetAnimationState(AnimationState::WalkBig);
 
-
-			//else if(myMario->GetMarioState() == myMario->BigMario)
-			//animation->SetAnimationState(AnimationState::WalkBig);
+			// -----
 
 			if (currentVel.x < 0)
 			{
@@ -56,7 +55,10 @@ void CMovementAnimation::Update(float deltaTime)
 		}
 		else if (owner->transform->canJump == false)
 		{
-			animation->SetAnimationState(AnimationState::Jump);
+			if (myMario->GetMarioState() == MarioState::SmallMario)
+				animation->SetAnimationState(AnimationState::Jump);
+			else if (myMario->GetMarioState() == MarioState::BigMario)
+				animation->SetAnimationState(AnimationState::JumpBig);
 
 			if (currentVel.x < 0)
 				animation->SetAnimationDirection(FaceDirection::Left);
@@ -65,7 +67,10 @@ void CMovementAnimation::Update(float deltaTime)
 		}
 		else
 		{
-			animation->SetAnimationState(AnimationState::Idle);
+			if (myMario->GetMarioState() == MarioState::SmallMario)
+				animation->SetAnimationState(AnimationState::Idle);
+			else if (myMario->GetMarioState() == MarioState::BigMario)
+				animation->SetAnimationState(AnimationState::IdleBig);
 		}
 	}
 }

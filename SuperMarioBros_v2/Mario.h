@@ -23,7 +23,7 @@ public:
 	void OnCreate();
 	void Promote();
 	void Demote();
-	MarioState GetMarioState() const;
+	MarioState GetMarioState();
 	
 
 private:
@@ -31,6 +31,7 @@ private:
 	SharedContext& context;
 	ObjectCollection* objects;
 	std::shared_ptr<Object> mario;
-	MarioState marioState = MarioState::BigMario;
+	MarioState marioState = MarioState::SmallMario;
+	void SetBigMarioCollider();
 	
 };

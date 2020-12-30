@@ -28,6 +28,7 @@ void SceneGame::onCreate()
 	//CreatePlayer();
 	Mario* mario = new Mario(context,&objects);
 	mario->OnCreate();
+	mario->Promote();
 	CreateEnemy(); 
 }
 
