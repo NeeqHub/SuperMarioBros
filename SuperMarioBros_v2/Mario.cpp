@@ -1,27 +1,27 @@
 #include "Mario.h"
 
-Mario::Mario(SharedContext& context, ObjectCollection* objects) : context(context), objects(objects)
+Mario::Mario(SharedContext& context, ObjectCollection* objects) : context(context), objects(objects), Object(&context)
 {
-	mario = std::make_shared<Object>(&context);
+	//mario = std::make_shared<Object>(&context);
 }
 
 void Mario::OnCreate()
 {
-	auto sprite = mario->addComponent<CSprite>();
-	auto collider = mario->addComponent<CBoxCollider>();
-	auto camera = mario->addComponent<CCamera>();
-	auto animation = mario->addComponent<CAnimation>();
-	auto movement = mario->addComponent<CMovementAnimation>();
-	mario->addComponent<CKeyboardMovement>();
-	mario->addComponent<OutputColliders>();
-	mario->addComponent<CVelocity>();
+	auto sprite = this->addComponent<CSprite>();
+	auto collider = this->addComponent<CBoxCollider>();
+	auto camera = this->addComponent<CCamera>();
+	auto animation = this->addComponent<CAnimation>();
+	auto movement = this->addComponent<CMovementAnimation>();
+	this->addComponent<CKeyboardMovement>();
+	this->addComponent<OutputColliders>();
+	this->addComponent<CVelocity>();
 	
 	int marioTextureID = context.textureAllocator->add(context.workingDir->Get() + "mario.png");
 
 	sprite->Load(context.workingDir->Get() + "mario.png");
 	sprite->SetScale(3, 3);
 
-	mario->transform->setPosition(100.0f, 500.0f);
+	this->transform->setPosition(100.0f, 500.0f);
 
 	collider->SetTag(Tag::Player);
 	
@@ -30,9 +30,9 @@ void Mario::OnCreate()
 	sprite->Load(context.workingDir->Get() + "mario.png");
 	sprite->SetScale(3, 3);
 
-	mario->transform->setPosition(100.0f, 500.0f);
+	this->transform->setPosition(100.0f, 500.0f);
 
-	std::cout << "mario id: " << mario->getComponent<C_InstanceID>()->Get() << std::endl;
+	std::cout << "mario id: " << this->getComponent<C_InstanceID>()->Get() << std::endl;
 
 	const int frameWidth = 16;
 	const int frameHeight = 16;
@@ -105,7 +105,7 @@ void Mario::OnCreate()
 	collider->SetLayer(CollisionLayer::Player);
 
 	movement->SetMarioState(this);
-	objects->add(mario);
+	//objects->add(mario);
 }
 
 void Mario::Promote()
@@ -135,6 +135,6 @@ MarioState Mario::GetMarioState()
 
 void Mario::SetBigMarioCollider()
 {
-	auto collider = mario->getComponent<CBoxCollider>();
+	auto collider = this->getComponent<CBoxCollider>();
 	collider->SetCollidable(sf::FloatRect(0, 0, 48, 96));
 }

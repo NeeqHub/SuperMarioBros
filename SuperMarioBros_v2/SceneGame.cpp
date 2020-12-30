@@ -26,9 +26,14 @@ void SceneGame::onCreate()
 	objects.add(levelBackgroundTiles);
 	objects.add(levelTiles);
 	//CreatePlayer();
-	Mario* mario = new Mario(context,&objects);
+	//Mario* mario = new Mario(context,&objects);
+	std::shared_ptr<Mario> mario = std::make_shared<Mario>(context, &objects);
+	
 	mario->OnCreate();
 	mario->Promote();
+	//auto transform = mario->getComponent<CKeyboardMovement>();
+	//transform->setMovementSpeed(1000.0f);
+	objects.add(mario);
 	CreateEnemy(); 
 }
 

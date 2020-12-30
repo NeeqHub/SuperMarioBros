@@ -14,7 +14,7 @@ enum class MarioState
 	FireMario
 };
 
-class Mario
+class Mario : public Object
 {
 
 public: 
@@ -30,7 +30,7 @@ private:
 
 	SharedContext& context;
 	ObjectCollection* objects;
-	std::shared_ptr<Object> mario;
+	//std::shared_ptr<Object> mario;
 	MarioState marioState = MarioState::SmallMario;
 	void SetBigMarioCollider();
 	
