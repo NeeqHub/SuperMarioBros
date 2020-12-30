@@ -5,10 +5,6 @@
 #include "CVelocity.h"
 #include "CCollider.h"
 
-
-
-
-
 unsigned int C_InstanceID::count = 0;
 
 C_InstanceID::C_InstanceID(Object* owner) : Component(owner), id(count++) {}
@@ -416,15 +412,13 @@ void S_Collidable::Resolve()
 	}
 }
 
-
 C_RemoveObjectOnCollisionEnter::C_RemoveObjectOnCollisionEnter(Object* owner) : Component(owner) {}
 
 void C_RemoveObjectOnCollisionEnter::OnCollisionEnter(std::shared_ptr<CBoxCollider> other)
 {
 	// Remove the projectile when it collides with any other object    
-	//owner->QueueForRemoval();
+	// owner->QueueForRemoval();
 }
-
 
 OutputColliders::OutputColliders(Object * owner) : Component(owner)
 {
@@ -434,6 +428,7 @@ void OutputColliders::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 {
 	if (other->GetTag() == Tag::Surprise && m.collisionDirection == CollisionDirection::Bottom)
 	{
+		//dynamic_cast<Mario*>(owner);
 		owner->getComponent<CVelocity>()->Set(owner->getComponent<CVelocity>()->Get().x, owner->getComponent<CVelocity>()->Get().y + 5.0f);
 		other->owner->getComponent<BlocksAnim>()->OnDestory();
 	}
@@ -489,23 +484,6 @@ void EnemyMovement::Update(float deltaTime)
 			else if (owner->transform->getPosition().x >= 48.0f * 48.0f)
 				enemyMovementSpeed = enemyMovementSpeed * (-1);
 
-		}
-
-		if (owner->instanceID->Get() == 481)
-		{
-			if (owner->transform->getPosition().x <= 117.0f * 48.0f)
-				enemyMovementSpeed = enemyMovementSpeed * (-1);
-			else if (owner->transform->getPosition().x >= 125.0f * 48.0f)
-				enemyMovementSpeed = enemyMovementSpeed * (-1);
-
-		}
-
-		if (owner->instanceID->Get() == 484)
-		{
-			if (owner->transform->getPosition().x <= 108.0f * 48.0f)
-				enemyMovementSpeed = enemyMovementSpeed * (-1);
-			else if (owner->transform->getPosition().x >= 115.0f * 48.0f)
-				enemyMovementSpeed = enemyMovementSpeed * (-1);
 		}
 
 		velocity->SetAcc(enemyMovementSpeed, 0.0f);
@@ -574,28 +552,30 @@ void EnemyTurtleMovement::Update(float deltaTime)
 		return;
 	}
 
-	if (owner->instanceID->Get() == 482)
+	if (owner->instanceID->Get() == 481)
 	{
 		if (owner->hitted == false)
 		{
-			if (owner->transform->getPosition().x <= 95.0f * 48.0f)
-				velocity->Set(enemyMovementSpeed, 0.0f);
+			
 
-			if (owner->transform->getPosition().x >= 105.0f * 48.0f)
-				velocity->Set(-enemyMovementSpeed, 0.0f);
+			if (owner->hitted == false)
+			{
+				if (owner->transform->getPosition().x <= 51.0f * 48.0f)
+					velocity->Set(enemyMovementSpeed, 0.0f);
+
+				if (owner->transform->getPosition().x >= 58.0f * 48.0f)
+					velocity->Set(-enemyMovementSpeed, 0.0f);
+			}
 		}
 			
 	}
-	else if (owner->instanceID->Get() == 483)
+	else if (owner->instanceID->Get() == 482)
 	{
-		if (owner->hitted == false)
-		{
-			if (owner->transform->getPosition().x <= 51.0f * 48.0f)
-					velocity->Set(enemyMovementSpeed, 0.0f);
+			if (owner->transform->getPosition().x <= 90.0f * 48.0f)
+				velocity->Set(enemyMovementSpeed, 0.0f);
 
-			if (owner->transform->getPosition().x >= 58.0f * 48.0f)
-					velocity->Set(-enemyMovementSpeed, 0.0f);
-		}		
+			if (owner->transform->getPosition().x >= 100.0f * 48.0f)
+				velocity->Set(-enemyMovementSpeed, 0.0f);
 	}
 
 	if (owner->isPushedLeft == false && owner->isPushedRight == false && owner->hitted == true)

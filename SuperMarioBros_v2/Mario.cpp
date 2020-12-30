@@ -1,8 +1,8 @@
 #include "Mario.h"
 
-Mario::Mario(SharedContext& context, ObjectCollection* objects) : context(context), objects(objects), Object(&context)
+Mario::Mario(SharedContext& context) : context(context), Object(&context)
 {
-	//mario = std::make_shared<Object>(&context);
+
 }
 
 void Mario::OnCreate()

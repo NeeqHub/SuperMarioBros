@@ -19,7 +19,7 @@ class Mario : public Object
 
 public: 
 
-	Mario(SharedContext& context, ObjectCollection* objects);
+	Mario(SharedContext& context);
 	void OnCreate();
 	void Promote();
 	void Demote();
@@ -29,8 +29,6 @@ public:
 private:
 
 	SharedContext& context;
-	ObjectCollection* objects;
-	//std::shared_ptr<Object> mario;
 	MarioState marioState = MarioState::SmallMario;
 	void SetBigMarioCollider();
 	

@@ -14,6 +14,8 @@
 #include "CVelocity.h"
 #include "CMovementAnimation.h"
 #include "Mario.h"
+#include "Mushroom.h"
+#include "Turtle.h"
 
 class SceneGame : public Scene
 {

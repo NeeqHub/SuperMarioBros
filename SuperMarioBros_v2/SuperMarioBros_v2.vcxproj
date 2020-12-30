@@ -147,6 +147,7 @@
     <ClCompile Include="CKeyboardMovement.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mario.cpp" />
+    <ClCompile Include="Mushroom.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="ObjectCollection.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="SceneSplashScreen.cpp" />
     <ClCompile Include="SceneStateMachine.cpp" />
     <ClCompile Include="Tile.cpp" />
+    <ClCompile Include="Turtle.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="WorkingDirectory.cpp" />
   </ItemGroup>
@@ -175,6 +177,7 @@
     <ClInclude Include="Input.h" />
     <ClInclude Include="CKeyboardMovement.h" />
     <ClInclude Include="Mario.h" />
+    <ClInclude Include="Mushroom.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="ObjectCollection.h" />
     <ClInclude Include="ResourceManager.h" />
@@ -184,6 +187,7 @@
     <ClInclude Include="SceneSplashScreen.h" />
     <ClInclude Include="SceneStateMachine.h" />
     <ClInclude Include="Tile.h" />
+    <ClInclude Include="Turtle.h" />
     <ClInclude Include="Window.h" />
     <ClInclude Include="WorkingDirectory.h" />
   </ItemGroup>
