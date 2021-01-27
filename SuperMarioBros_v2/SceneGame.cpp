@@ -26,7 +26,7 @@ void SceneGame::onCreate()
 	// Create mario 
 	std::shared_ptr<Mario> mario = std::make_shared<Mario>(context);
 	mario->OnCreate();
-	//mario->Promote();
+	mario->Promote();
 
 	// Create mushrooms
 	std::shared_ptr<Mushroom> mushroom1 = std::make_shared<Mushroom>(context);

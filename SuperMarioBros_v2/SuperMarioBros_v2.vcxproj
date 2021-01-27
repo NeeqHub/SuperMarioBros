@@ -143,6 +143,7 @@
     <ClCompile Include="CTransform.cpp" />
     <ClCompile Include="CVelocity.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="Improvement.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="CKeyboardMovement.cpp" />
     <ClCompile Include="main.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="CTransform.h" />
     <ClInclude Include="CVelocity.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="Improvement.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="CKeyboardMovement.h" />
     <ClInclude Include="Mario.h" />

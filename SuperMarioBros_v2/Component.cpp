@@ -4,6 +4,7 @@
 #include "CAnimation.h"
 #include "CVelocity.h"
 #include "CCollider.h"
+#include "Mario.h"
 
 unsigned int C_InstanceID::count = 0;
 
@@ -428,8 +429,11 @@ void OutputColliders::OnCollisionEnter(std::shared_ptr<CBoxCollider> other, Mani
 {
 	if (other->GetTag() == Tag::Surprise && m.collisionDirection == CollisionDirection::Bottom)
 	{
-		//dynamic_cast<Mario*>(owner);
-		owner->getComponent<CVelocity>()->Set(owner->getComponent<CVelocity>()->Get().x, owner->getComponent<CVelocity>()->Get().y + 5.0f);
+		if(static_cast<Mario*>(owner)->GetMarioState() == MarioState::SmallMario)
+			owner->getComponent<CVelocity>()->Set(owner->getComponent<CVelocity>()->Get().x, owner->getComponent<CVelocity>()->Get().y + 5.0f);
+		else
+			owner->getComponent<CVelocity>()->Set(owner->getComponent<CVelocity>()->Get().x, owner->getComponent<CVelocity>()->Get().y + 15.0f);
+
 		other->owner->getComponent<BlocksAnim>()->OnDestory();
 	}
 
